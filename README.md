@@ -1,4 +1,4 @@
-# Offline handwritten mathematical expression regnition via stroke extraction
+# Offline handwritten mathematical expression recognition via stroke extraction
 
 The repository provide a proof-of-concept stroke extractor that can extract strokes from clean
 bitmap images. The stroke extractor can be used to recognize offline handwritten
