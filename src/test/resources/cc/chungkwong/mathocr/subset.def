@@ -1,0 +1,37 @@
+symbol1 = 0 1 2 3 4 5 6 7 8 9
+          A B C E F G H I L M N P R S T V X Y
+          a b c d e f g h i j k l m n o p q r s t u v w x y z
+          Δ α β γ θ λ π σ φ ϕ µ
+          ( ) < > [ ] { } 
+          ! / | ∞
+          sin cos tan lim log
+
+symbol2 = + - ± × ÷ · = ' , . … → ∃ ∈ ≠ ≤ ≥ ∀ 
+
+symbol3 = ∏ ∑ ∫
+
+symbol4 = ∏ ∑ ∫ lim
+
+symbol6 = ( [ { |
+
+symbol7 = ) ] } |
+
+sqrtTerm ::= sqrt(term)
+
+exponentiable ::= identity(symbol1)
+                | identity(sqrtTerm)
+                | presuperscript(sqrtTerm, term)
+                | fence(term, symbol6, symbol7)
+
+term ::= identity(exponentiable)
+       | identity(symbol2)
+       | identity(symbol3)
+       | hpair(term, term)
+       | fraction(term, term)
+       | subscript(exponentiable, term)
+       | superscript(exponentiable, term)
+       | subsuperscript(exponentiable, term, term)
+       | underscript(symbol4, term)
+       | underoverscript(symbol3, term, term)
+
+start(term)

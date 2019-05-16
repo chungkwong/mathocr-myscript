@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Result viewer</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<script>
+			var imagePaths = [
+				"file:///home/kwong/projects/datasets/crohme2019/Task1_and_Task2/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs/18_em_0.png",
+				"file:///home/kwong/projects/datasets/crohme2019/Task1_and_Task2/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs/18_em_1.png",
+				"file:///home/kwong/projects/datasets/crohme2019/Task1_and_Task2/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs/18_em_2.png"
+			];
+			var results = ["<mfrac><mn>4</mn><mn>8</mn></mfrac>", "<msqrt><mn>4</mn><mn>8</mn></msqrt>", "<mrow><mn>4</mn><mn>8</mn></mrow>"];
+			var index = -1;
+			var correct = 0;
+			var next = function (c) {
+				if (index >= imagePaths.length) {
+					return;
+				}
+				document.getElementById('total').textContent = ++index;
+				if (c) {
+					document.getElementById('correct').textContent = ++correct;
+				}
+				if (index >= imagePaths.length) {
+					return;
+				}
+				document.getElementById('expression').innerHTML = results[index];
+				document.getElementById('image').src = imagePaths[index];
+			};
+		</script>
+	</head>
+	<body>
+		<a onclick="next(true)">Correct</a>(<span id="correct">0</span>/<span id="total">0</span>)
+		<a onclick="next(false)">Wrong</a>
+		<div><math id="expression"></math></div>
+		<img id="image" style="max-width: 100vw;max-height: 100vh;">
+		<script>
+			next(false);
+		</script>
+	</body>
+</html>
