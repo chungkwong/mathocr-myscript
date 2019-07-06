@@ -51,14 +51,14 @@ public class ToGrayscale implements Preprocessor{
 		//		new ColorConvertOp(null).filter(image,result);
 		byte[] buf=((DataBufferByte)result.getRaster().getDataBuffer()).getData();
 		if(image.getType()==BufferedImage.TYPE_INT_ARGB){
-			int[] data=((DataBufferInt)image.getData().getDataBuffer()).getData();
+			int[] data=((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 			for(int i=0;i<buf.length;i++){
 				int pixel=data[i];
 				int alpha=(pixel>>>24)&0xff, red=(pixel>>>16)&0xff, green=(pixel>>>8)&0xff, blue=pixel&0xff;
 				buf[i]=(byte)(255-(255-(red*wR+green*wG+blue*wB)/divisor)*alpha/255);
 			}
 		}else if(image.getType()==BufferedImage.TYPE_INT_RGB){
-			int[] data=((DataBufferInt)image.getData().getDataBuffer()).getData();
+			int[] data=((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 			for(int i=0;i<buf.length;i++){
 				int pixel=data[i];
 				int red=(pixel>>>16)&0xff, green=(pixel>>>8)&0xff, blue=pixel&0xff;
