@@ -12,7 +12,7 @@ Dataset|Correct|Up to 1 error|Up to 2 errors|Structural correct
 ---|---|---|---|---
 CROHME 2014|58.22%|71.60%|75.15%|77.38%
 CROHME 2016|65.65%|77.68%|82.56%|85.00%
-CROHME 2019|65.05%|||
+CROHME 2019|65.22%|78.48%|83.07%|84.90%
 
 Although good accuracy is achieved on datasets from CROHME, the program
 may produce poor results on real world images. For example, the procedure do not
@@ -90,7 +90,7 @@ Eprint = {arXiv:1905.06749},
 ---|---|---|---|---
 CROHME 2014|58.22%|71.60%|75.15%|77.38%
 CROHME 2016|65.65%|77.68%|82.56%|85.00%
-CROHME 2019|65.05%|||
+CROHME 2019|65.22%|78.48%|83.07%|84.90%
 
 虽然在CROHME数据集上取得了良好的表现，本程序对现实世界中的图片表现仍然可能未如理想。
 例如对以下类型的图片可能给出差劲的结果：
