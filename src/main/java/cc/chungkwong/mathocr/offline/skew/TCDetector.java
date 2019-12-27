@@ -32,7 +32,7 @@ public class TCDetector extends SearchBasedDetector{
 		super(strategy);
 	}
 	@Override
-	protected double getCost(int[] pixels,int width,int height,double theta){
+	protected double getCost(byte[] pixels,int width,int height,double theta){
 		int len=width*height;
 		double k=Math.tan(theta), sum=0, sqsum=0;
 		int[] offset=new int[width];
@@ -41,7 +41,7 @@ public class TCDetector extends SearchBasedDetector{
 		}
 		for(int i=0;i<height;i++){
 			int count=0;
-			int prev=0xffffffff;
+			byte prev=(byte)0xff;
 			for(int j=0;j<width;j++){
 				int ind=(i+offset[j])*width+j;
 				if(ind>=0&&ind<len&&pixels[ind]!=prev){

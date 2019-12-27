@@ -49,14 +49,15 @@ public class ErrorInspector{
 		double[] upper={0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1};
 		HashMap<String,Double> fs=new HashMap<>();
 		int threhold=(int)(TracerTests.THREHOLD*scale*scale);
+		JsonFormat jsonFormat=new JsonFormat();
 		Files.lines(new File(directory,"list").toPath()).
 				filter((line)->line.contains(", ")).
 				forEach((line)->{
 					try{
 						String[] s=line.split(", ");
 						TraceList groundTruth=new Ink(new File(s[0])).getTraceList();
-						TraceList extracted=TracerTests.importTrace(new File(strokeDirectory,new File(s[1]).getName().replace("inkml","json")));
-						fs.put(s[0],getF(TracerTests.rescale(groundTruth,TracerTests.IMAGE_BOX.scale(scale)),extracted,threhold));
+						TraceList extracted=jsonFormat.read(new File(strokeDirectory,new File(s[1]).getName().replace("inkml","json")));
+						fs.put(s[0],getF(groundTruth.rescale(TracerTests.IMAGE_BOX.scale(scale)),extracted,threhold));
 					}catch(IOException|ParserConfigurationException|SAXException ex){
 						Logger.getLogger(ErrorInspector.class.getName()).log(Level.SEVERE,null,ex);
 					}
@@ -314,10 +315,11 @@ public class ErrorInspector{
 //		inspect(new File(Crohme.DIRECTORY_RESULT+"/raw2016"));
 //		inspect(new File(Crohme.DIRECTORY_RESULT+"/test2014"));
 //		inspect(new File(Crohme.DIRECTORY_RESULT+"/test2016"));
+		inspect(new File(Crohme.DIRECTORY_RESULT+"/otsu2016"));
 		//inspect(new File(Crohme.DIRECTORY_RESULT+"/img2016_small"));
 		//inspect(new File(Crohme.DIRECTORY_RESULT+"/2016"));
 		//inspectByExtraction(new File("../datasets/tracer/2016"));
-		inspectByExtraction(new File(Crohme.DIRECTORY_RESULT+"/test2016"),new File(Crohme.DIRECTORY_RESULT+"/test2016/result_stroke"),1.5);
+//		inspectByExtraction(new File(Crohme.DIRECTORY_RESULT+"/test2016"),new File(Crohme.DIRECTORY_RESULT+"/test2016/result_stroke"),1.5);
 //		inspectByComplexity(new File(Crohme.DIRECTORY_RESULT+"/test2016"));
 	}
 }

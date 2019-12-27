@@ -15,11 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.ui;
-import cc.chungkwong.mathocr.online.TracePoint;
-import cc.chungkwong.mathocr.common.Pair;
-import cc.chungkwong.mathocr.online.TraceList;
-import cc.chungkwong.mathocr.online.Trace;
-import cc.chungkwong.mathocr.common.BoundBox;
+import cc.chungkwong.mathocr.common.*;
+import cc.chungkwong.mathocr.common.format.*;
+import cc.chungkwong.mathocr.online.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
@@ -35,13 +33,15 @@ import javax.swing.event.*;
  * @author Chan Chung Kwong
  */
 public class TraceListViewer extends JPanel implements MouseMotionListener,ChangeListener{
-	public static final int THICK=3, MARGIN_V=10, MARGIN_H=15;
+	public static final int THICK=1, MARGIN_V=10, MARGIN_H=15;
 	private static final int MAXIMUM_TIME=10000;
 	private static final Color[] COLORS=new Color[]{Color.RED,Color.GREEN,Color.BLUE};
 	private BoundBox boundBox;
 	private TraceList traceList;
+	private BufferedImage image;
 	private java.util.List<Pair<BoundBox,String>> annotions;
 	private final JLabel canvas=new JLabel();
+	private final JButton save=new JButton(ResourceBundle.getBundle("cc.chungkwong.mathocr.message").getString("SAVE"));
 	private final JSpinner zoom=new JSpinner(new SpinnerNumberModel(100,25,400,25));
 	private final JSlider time=new JSlider(JSlider.HORIZONTAL,0,MAXIMUM_TIME,MAXIMUM_TIME);
 	public TraceListViewer(){
@@ -50,8 +50,21 @@ public class TraceListViewer extends JPanel implements MouseMotionListener,Chang
 		add(canvas,BorderLayout.CENTER);
 		time.addChangeListener(this);
 		add(time,BorderLayout.SOUTH);
-		zoom.addChangeListener((e)->setTraceList(traceList,annotions));
-		add(zoom,BorderLayout.NORTH);
+		zoom.addChangeListener((e)->zoom());
+		save.addActionListener((e)->{
+			JFileChooser jfc=new JFileChooser();
+			if(jfc.showSaveDialog(this)==JFileChooser.APPROVE_OPTION){
+				try{
+					TraceListFormat.writeTo(traceList,jfc.getSelectedFile());
+				}catch(IOException ex){
+					Logger.getLogger(TraceListViewer.class.getName()).log(Level.SEVERE,null,ex);
+				}
+			}
+		});
+		Box toolBar=Box.createHorizontalBox();
+		toolBar.add(zoom);
+		toolBar.add(save);
+		add(toolBar,BorderLayout.NORTH);
 	}
 	public void setTraceList(TraceList traceList,java.util.List<Pair<BoundBox,String>> annotions){
 		if(traceList==null){
@@ -105,7 +118,7 @@ public class TraceListViewer extends JPanel implements MouseMotionListener,Chang
 		graphics.setBackground(Color.WHITE);
 		graphics.clearRect(0,0,box.getWidth(),box.getHeight());
 		graphics.translate(-box.getLeft(),-box.getTop());
-		graphics.setXORMode(Color.WHITE);
+//		graphics.setXORMode(Color.WHITE);
 		graphics.setColor(Color.BLACK);
 		graphics.setStroke(new BasicStroke(THICK,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
 		int color=-1;
@@ -133,13 +146,16 @@ public class TraceListViewer extends JPanel implements MouseMotionListener,Chang
 		return renderImage(traceList,padBoundBox(traceList.getBoundBox()));
 	}
 	public static BufferedImage renderImage(TraceList list,BoundBox box){
+		return renderImage(list,box,THICK);
+	}
+	public static BufferedImage renderImage(TraceList list,BoundBox box,int thick){
 		BufferedImage image=new BufferedImage(box.getWidth(),box.getHeight(),BufferedImage.TYPE_BYTE_GRAY);
 		Graphics2D graphics=(Graphics2D)image.getGraphics();
 		graphics.setBackground(Color.WHITE);
 		graphics.clearRect(0,0,box.getWidth(),box.getHeight());
 		graphics.translate(-box.getLeft(),-box.getTop());
 		graphics.setColor(Color.BLACK);
-		graphics.setStroke(new BasicStroke(THICK,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
+		graphics.setStroke(new BasicStroke(thick,BasicStroke.CAP_ROUND,BasicStroke.JOIN_ROUND));
 		list.getTraces().forEach((path)->graphics.draw(toPath2D(path)));
 		return image;
 	}
@@ -194,8 +210,13 @@ public class TraceListViewer extends JPanel implements MouseMotionListener,Chang
 		}
 	}
 	public void setImage(BufferedImage image){
+		this.image=image;
+		zoom();
+	}
+	private void zoom(){
 		int z=((Number)zoom.getValue()).intValue();
-		image=z!=100?new AffineTransformOp(AffineTransform.getScaleInstance(z/100.0,z/100.0),AffineTransformOp.TYPE_BILINEAR).filter(image,null):image;
-		canvas.setIcon(new ImageIcon(image));
+		canvas.setIcon(new ImageIcon(z!=100
+				?new AffineTransformOp(AffineTransform.getScaleInstance(z/100.0,z/100.0),AffineTransformOp.TYPE_BILINEAR).filter(image,null)
+				:image));
 	}
 }

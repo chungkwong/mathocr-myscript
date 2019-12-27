@@ -15,8 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.common.format;
-import cc.chungkwong.mathocr.common.Expression;
-import static cc.chungkwong.mathocr.common.Expression.*;
+import cc.chungkwong.mathocr.common.*;
+import cc.chungkwong.mathocr.common.Expression.Fraction;
+import cc.chungkwong.mathocr.common.Expression.Line;
+import cc.chungkwong.mathocr.common.Expression.Matrix;
+import cc.chungkwong.mathocr.common.Expression.Over;
+import cc.chungkwong.mathocr.common.Expression.Radical;
+import cc.chungkwong.mathocr.common.Expression.Subscript;
+import cc.chungkwong.mathocr.common.Expression.Subsuperscript;
+import cc.chungkwong.mathocr.common.Expression.Superscript;
+import cc.chungkwong.mathocr.common.Expression.Symbol;
+import cc.chungkwong.mathocr.common.Expression.Under;
+import cc.chungkwong.mathocr.common.Expression.UnderOver;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
@@ -26,8 +36,9 @@ import java.util.stream.*;
  *
  * @author Chan Chung Kwong
  */
-public class LatexFormat implements Format{
-	private static final Map<Integer,String> latexName;
+public class LatexFormat implements ExpressionFormat{
+	private static final Map<Integer,String> LATEX_NAMES;
+	private static final Set<String> OPERATOR_NAME;
 	static{
 		Properties math=new Properties();
 		try(InputStream in=LatexFormat.class.getResourceAsStream("latex_symbol_math.properties")){
@@ -35,7 +46,8 @@ public class LatexFormat implements Format{
 		}catch(IOException ex){
 			Logger.getLogger(LatexFormat.class.getName()).log(Level.SEVERE,null,ex);
 		}
-		latexName=math.entrySet().stream().collect(Collectors.toMap((e)->Integer.parseInt(e.getKey().toString(),16),(e)->e.getValue().toString()));
+		LATEX_NAMES=math.entrySet().stream().collect(Collectors.toMap((e)->Integer.parseInt(e.getKey().toString(),16),(e)->e.getValue().toString()));
+		OPERATOR_NAME=Set.of("lim","log","sin","cos","tan");
 	}
 	public LatexFormat(){
 	}
@@ -87,6 +99,16 @@ public class LatexFormat implements Format{
 					return;
 				}
 			}
+			int codePointC=getCodePoint(over.getContent());
+			if(codePointC>=0){
+				String name=getLegName(codePointC);
+				if(name!=null){
+					buf.append('\\').append(name).append('{');
+					encode(over.getOver(),buf);
+					buf.append('}');
+					return;
+				}
+			}
 			buf.append("\\stackrel{");
 			encode(over.getOver(),buf);
 			buf.append("}{");
@@ -105,18 +127,32 @@ public class LatexFormat implements Format{
 				}
 			}
 			int codePointC=getCodePoint(under.getContent());
-			if(codePointC>=0&&isBigOperator(codePointC)){
-				encode(under.getContent(),buf);
-				buf.append("_{");
-				encode(under.getUnder(),buf);
-				buf.append('}');
-				return;
+			if(codePointC>=0){
+				if(isBigOperator(codePointC)){
+					encode(under.getContent(),buf);
+					buf.append("_{");
+					encode(under.getUnder(),buf);
+					buf.append('}');
+					return;
+				}else{
+					String name=getHatName(codePointC);
+					if(name!=null){
+						buf.append('\\').append(name).append('{');
+						encode(under.getUnder(),buf);
+						buf.append('}');
+						return;
+					}
+				}
 			}
-			buf.append("\\stackrel{");
 			encode(under.getContent(),buf);
-			buf.append("}{");
+			buf.append("_{");
 			encode(under.getUnder(),buf);
-			buf.append("}");
+			buf.append('}');
+//			buf.append("\\stackrel{");
+//			encode(under.getContent(),buf);
+//			buf.append("}{");
+//			encode(under.getUnder(),buf);
+//			buf.append("}");
 		}else if(span instanceof UnderOver){
 			UnderOver underover=((UnderOver)span);
 			int codePoint=getCodePoint(underover.getContent());
@@ -189,55 +225,83 @@ public class LatexFormat implements Format{
 				buf.delete(buf.length()-3,buf.length()-1);
 			}
 			buf.append("\\end{array}\n");
-		}else{
+		}else if(span!=null){
 			escape(span.toString(),buf);
+		}else{
+			buf.append("%");
 		}
 	}
 	private int getCodePoint(Expression expression){
 		if(expression instanceof Expression.Line&&((Expression.Line)expression).getSpans().size()==1){
 			return getCodePoint(((Expression.Line)expression).getSpans().get(0));
 		}else if(expression instanceof Symbol){
-			return ((Symbol)expression).getName().codePointAt(0);
+			return ((Symbol)expression).getName().trim().codePointAt(0);
 		}else{
 			return -1;
 		}
 	}
 	private void escape(String str,StringBuilder buf){
+		if(OPERATOR_NAME.contains(str)){
+			buf.append('\\').append(str).append(' ');
+			return;
+		}
 		int len=str.length();
 		for(int i=0;i<len;i=str.offsetByCodePoints(i,1)){
 			int c=str.codePointAt(i);
-			if(latexName.containsKey(c)){
-				buf.append(latexName.get(c));
+			if(LATEX_NAMES.containsKey(c)){
+				buf.append(LATEX_NAMES.get(c));
 			}else{
 				buf.appendCodePoint(c);
+//				if(len>1){
+//					System.err.println("Strange:"+str);
+//				}
 			}
 		}
 	}
 	private static String getHatName(int codePoint){
 		switch(codePoint){
+			case '.':
 			case '˙':
+			case '\u0307':
 				return "dot";
 			case '¨':
+			case '\u0308':
 				return "ddot";
 			case 'ˆ':
+			case '^':
+			case '∧':
+			case '\u0302':
 				return "hat";
 			case '¯':
+			case 'ˉ':
+			case '-':
+			case '\u0304':
 				return "overline";
 			case '´':
+			case '\u0301':
 				return "acute";
 			case 'ˇ':
+			case '∨':
+			case '\u030C':
 				return "check";
 			case 'ˋ':
+			case '\u0300':
 				return "grave";
 			case '˘':
+			case '\u0306':
 				return "breve";
 			case '°':
+			case '˚':
+			case '\u030A':
 				return "mathring";
 			case '˜':
+			case '∼':
+			case '\u0303':
 				return "tilde";
 			case '⏞':
 				return "overbrace";
 			case '\u20D7':
+			case '→':
 				return "vec";
 			default:
 				return null;
@@ -246,6 +310,7 @@ public class LatexFormat implements Format{
 	private static String getLegName(int codePoint){
 		switch(codePoint){
 			case '_':
+			case '-':
 				return "underline";
 			case '⏟':
 				return "underbrace";
@@ -254,7 +319,7 @@ public class LatexFormat implements Format{
 		}
 	}
 	private static boolean isBigOperator(int codePoint){
-		return "∏∐∑∫∬∭∮∯∰∱∲∳⋀⋁⋂⋃⨀⨁⨂⨃⨄⨅⨆⨉".indexOf(codePoint)!=-1;
+		return "∏∐∑∫∬∭∮∯∰∱∲∳⋀⋁⋂⋃⨀⊕⊗⨁⨂⨃⨄⨅⨆⨉".indexOf(codePoint)!=-1;
 	}
 	@Override
 	public boolean equals(Object obj){

@@ -40,7 +40,7 @@ public class Demo extends JPanel{
 	private JComboBox<GraphTracer> graphTracers;
 	private JComboBox<Orderer> orderers;
 	private JComboBox<OnlineRecognizer> recognizers;
-	private JComboBox<Format> formats;
+	private JComboBox<ExpressionFormat> formats;
 	private JCheckBox realtime;
 	private JButton recognize;
 	private JButton debug;
@@ -120,7 +120,7 @@ public class Demo extends JPanel{
 		recognizers=getServiceChooser(OnlineRecognizer.class,Extractor.DEFAULT.getRecognizer());
 		recognizers.addActionListener((e)->refresh(true));
 		settings.add(recognizers);
-		formats=getServiceChooser(Format.class,new LatexFormat());
+		formats=getServiceChooser(ExpressionFormat.class,new LatexFormat());
 		formats.addActionListener((e)->reformat());
 		settings.add(formats);
 		realtime=new JCheckBox(bundle.getString("REALTIME"),false);
@@ -197,7 +197,7 @@ public class Demo extends JPanel{
 	}
 	private void reformat(){
 		if(output!=null){
-			code.setText(output.getCodes((Format)formats.getSelectedItem()));
+			code.setText(output.getCodes((ExpressionFormat)formats.getSelectedItem()));
 		}
 	}
 	public static void main(String[] args){

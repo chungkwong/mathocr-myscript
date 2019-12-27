@@ -15,11 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.offline.extractor.tracer;
-import cc.chungkwong.mathocr.offline.StrokeWidthTransform;
-import cc.chungkwong.mathocr.offline.Bitmap;
-import cc.chungkwong.mathocr.offline.preprocessor.Thinning;
-import cc.chungkwong.mathocr.online.Trace;
-import cc.chungkwong.mathocr.online.TracePoint;
+import cc.chungkwong.mathocr.offline.*;
+import cc.chungkwong.mathocr.offline.preprocessor.*;
+import cc.chungkwong.mathocr.online.*;
 import java.util.*;
 /**
  * Skeleton tracer that use thinning
@@ -239,7 +237,7 @@ public class ThinTracer implements SkeletonTracer{
 			changed=false;
 			for(Segment edge:graph.getEdges()){
 				int t=square(edge.getTrace().getPoints().size());
-				if(t<=edge.getThick()||t<=thick||t<=9){
+				if(t<=thick/2){//edge.getThick()||t<=thick||t<=9
 					removeEdge(edge,graph);
 					changed=true;
 					break;

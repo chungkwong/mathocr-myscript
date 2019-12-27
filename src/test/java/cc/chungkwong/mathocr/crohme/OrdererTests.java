@@ -15,10 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.crohme;
-import cc.chungkwong.mathocr.offline.extractor.orderer.Orderer;
-import cc.chungkwong.mathocr.online.TraceList;
-import cc.chungkwong.mathocr.common.Pair;
+import cc.chungkwong.mathocr.common.*;
 import cc.chungkwong.mathocr.offline.extractor.orderer.*;
+import cc.chungkwong.mathocr.online.*;
 import java.io.*;
 import java.util.*;
 import java.util.stream.*;
@@ -140,6 +139,18 @@ public class OrdererTests{
 		return penalty*Math.exp(Arrays.stream(p).map((q)->Math.log(q)).sum()/N);
 	}
 	public static void main(String[] args) throws IOException{
+//		testByPermute(Crohme.getTestStream2016().map((ink)->Crohme.normalizeTraceList(ink)),new BypassOrderer());
+//		testByPermute(Crohme.getTestStream2016().map((ink)->Crohme.normalizeTraceList(ink)),new LtrOrderer());
+//		testByPermute(Crohme.getTestStream2016().map((ink)->Crohme.normalizeTraceList(ink)),new TopologicalOrderer());
+//		testByPermute(Crohme.getTestStream2016().map((ink)->Crohme.normalizeTraceList(ink)),new CutOrderer());
+//		testByPermute(Crohme.getValidationStream2016().map((ink)->Crohme.normalizeTraceList(ink)),new BypassOrderer());
+//		testByPermute(Crohme.getValidationStream2016().map((ink)->Crohme.normalizeTraceList(ink)),new LtrOrderer());
+//		testByPermute(Crohme.getValidationStream2016().map((ink)->Crohme.normalizeTraceList(ink)),new TopologicalOrderer());
+//		testByPermute(Crohme.getValidationStream2016().map((ink)->Crohme.normalizeTraceList(ink)),new CutOrderer());
+//		testByPermute(Crohme.getTestStream2019().map((ink)->Crohme.normalizeTraceList(ink)),new BypassOrderer());
+//		testByPermute(Crohme.getTestStream2019().map((ink)->Crohme.normalizeTraceList(ink)),new LtrOrderer());
+//		testByPermute(Crohme.getTestStream2019().map((ink)->Crohme.normalizeTraceList(ink)),new TopologicalOrderer());
+//		testByPermute(Crohme.getTestStream2019().map((ink)->Crohme.normalizeTraceList(ink)),new CutOrderer());
 		testByPermute(Crohme.getTestStream2016().map((ink)->ink.getTraceList()),new BypassOrderer());
 		testByPermute(Crohme.getTestStream2016().map((ink)->ink.getTraceList()),new LtrOrderer());
 		testByPermute(Crohme.getTestStream2016().map((ink)->ink.getTraceList()),new TopologicalOrderer());
@@ -148,7 +159,9 @@ public class OrdererTests{
 		testByPermute(Crohme.getValidationStream2016().map((ink)->ink.getTraceList()),new LtrOrderer());
 		testByPermute(Crohme.getValidationStream2016().map((ink)->ink.getTraceList()),new TopologicalOrderer());
 		testByPermute(Crohme.getValidationStream2016().map((ink)->ink.getTraceList()),new CutOrderer());
-//		testByPermute(Crohme.getValidationStream2016().map((ink)->ink.getTraceList()),new DistanceOrderer());
-		//test(CrohmeUtil.getFullStream().map((ink)->ink.getTraceList()).iterator(),new DistanceOrderer());
+//		testByPermute(Crohme.getTestStream2019().map((ink)->ink.getTraceList()),new BypassOrderer());
+//		testByPermute(Crohme.getTestStream2019().map((ink)->ink.getTraceList()),new LtrOrderer());
+//		testByPermute(Crohme.getTestStream2019().map((ink)->ink.getTraceList()),new TopologicalOrderer());
+//		testByPermute(Crohme.getTestStream2019().map((ink)->ink.getTraceList()),new CutOrderer());
 	}
 }

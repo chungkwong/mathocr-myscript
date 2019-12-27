@@ -14,26 +14,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cc.chungkwong.mathocr.common.format;
-import cc.chungkwong.mathocr.common.Expression;
+package cc.chungkwong.mathocr.offline.preprocessor;
 /**
- * A format for mathematical expression
  *
  * @author Chan Chung Kwong
  */
-public interface Format{
-	/**
-	 * Encode an expression
-	 *
-	 * @param expression to be encoded
-	 * @return the code
+public abstract class GlobalBinarizer extends SimplePreprocessor{
+	@Override
+	public void preprocess(byte[] from,byte[] to,int width,int height){
+		int lim=getThrehold(from);
+		int len=width*height;
+		for(int i=0;i<len;i++){
+			to[i]=(from[i]&0xFF)<=lim?0x00:(byte)0xff;
+		}
+	}
+	/*
+	 * Get the threhold value
+	 * @param pixels pixel array of the input image
+	 * @return threhold value
 	 */
-	String encode(Expression expression);
-	/**
-	 * Decode
-	 *
-	 * @param code to be decoded
-	 * @return the expression
-	 */
-	Expression decode(String code);
+	protected abstract int getThrehold(byte[] pixels);
 }

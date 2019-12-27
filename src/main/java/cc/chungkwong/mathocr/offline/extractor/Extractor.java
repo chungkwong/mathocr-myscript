@@ -45,9 +45,9 @@ public class Extractor implements OfflineRecognizer{
 	 * @param recognizer
 	 */
 	public Extractor(OnlineRecognizer recognizer){
-		this(new CombinedPreprocessor(Arrays.asList(new ToGrayscale(),new SauvolaBinarizer(0.11,128))),
-				//			new CombinedPreprocessor(Arrays.asList(new ToGrayscale(),new OtsuBinarizer())),
-				//			new CombinedPreprocessor(Arrays.asList(new ToGrayscale(),new FixedBinarizer(195))),
+		this(new CombinedPreprocessor(Arrays.asList(new ToGrayscale(),new SauvolaBinarizer())),
+				//			new CombinedPreprocessor(Arrays.asList(new ToGrayscale(false),new OtsuBinarizer())),
+				//			new CombinedPreprocessor(Arrays.asList(new ToGrayscale(false),new FixedBinarizer(195))),
 				new ThinTracer(),new GreedyGraphTracer(),new CutOrderer(),recognizer);
 	}
 	/**

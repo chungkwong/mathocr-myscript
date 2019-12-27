@@ -31,7 +31,13 @@ import javax.imageio.*;
  * @author Chan Chung Kwong
  */
 public class StatisticsCollectors{
-	public static void collectGroundTruth(Stream<Ink> stream) throws IOException{
+	/**
+	 * Print statistics of some trace lists
+	 *
+	 * @param stream the trace lists
+	 * @throws IOException
+	 */
+	public static void collectGroundTruth(Stream<cc.chungkwong.mathocr.common.format.Ink> stream) throws IOException{
 		FrequencyTable<Integer> symbolCounter=new FrequencyTable<>();
 		FrequencyTable<Integer> traceCounter=new FrequencyTable<>();
 		Statistic symbols=new Statistic("Symbol");
@@ -40,10 +46,11 @@ public class StatisticsCollectors{
 		Statistic points=new Statistic("Point");
 		Statistic width=new Statistic("Width");
 		Statistic height=new Statistic("Height");
-		Statistic symbolWidth=new Statistic("Trace width");
-		Statistic symbolHeight=new Statistic("Trace height");
-		for(Iterator<Ink> iterator=stream.iterator();iterator.hasNext();){
-			Ink ink=iterator.next();
+		Statistic traceWidth=new Statistic("Trace width");
+		Statistic traceHeight=new Statistic("Trace height");
+		Statistic traceLength=new Statistic("Trace length");
+		for(Iterator<cc.chungkwong.mathocr.common.format.Ink> iterator=stream.iterator();iterator.hasNext();){
+			cc.chungkwong.mathocr.common.format.Ink ink=iterator.next();
 			TraceList traceList=ink.getTraceList();
 			try{
 				int symbolCount=ErrorInspector.countSymbol(ErrorInspector.getMathML(ink.getFile().getCanonicalPath()));
@@ -58,8 +65,9 @@ public class StatisticsCollectors{
 			ink.getAnnotions().stream().collect(Collectors.groupingBy((pair)->pair.getValue(),Collectors.counting())).forEach((k,v)->tracesPerSymbol.addSample((int)(long)v));
 			traceList.getTraces().forEach((t)->{
 				points.addSample(t.getPoints().size());
-				symbolWidth.addSample(t.getBoundBox().getWidth());
-				symbolHeight.addSample(t.getBoundBox().getHeight());
+				traceWidth.addSample(t.getBoundBox().getWidth());
+				traceHeight.addSample(t.getBoundBox().getHeight());
+				traceLength.addSample((int)SpeedNormalizer.getLength(t));
 			});
 			BoundBox boundBox=traceList.getBoundBox();
 			width.addSample(boundBox.getWidth());
@@ -75,14 +83,29 @@ public class StatisticsCollectors{
 		System.out.println(points);
 		System.out.println(width);
 		System.out.println(height);
-		System.out.println(symbolWidth);
-		System.out.println(symbolHeight);
+		System.out.println(traceWidth);
+		System.out.println(traceHeight);
+		System.out.println(traceLength);
 	}
-	public static void collectByRender(Stream<Ink> stream,Extractor configuration) throws IOException{
+	/**
+	 * Print statistics of some trace lists
+	 *
+	 * @param stream the trace lists to be rendered and then extracted
+	 * @param configuration extractor
+	 * @throws IOException
+	 */
+	public static void collectByRender(Stream<cc.chungkwong.mathocr.common.format.Ink> stream,Extractor configuration) throws IOException{
 		collectExtracted(stream.map((ink)->{
 			return configuration.extract(TraceListViewer.renderImage(ink.getTraceList()),false);
 		}));
 	}
+	/**
+	 * Print statistics of extracted trace lists
+	 *
+	 * @param directory the images
+	 * @param configuration the extractor
+	 * @throws IOException
+	 */
 	public static void collectFromImage(File directory,Extractor configuration) throws IOException{
 		collectExtracted(Files.list(directory.toPath()).filter((p)->p.toFile().getName().endsWith(".png")).map((f)->{
 			try{
@@ -93,17 +116,31 @@ public class StatisticsCollectors{
 			}
 		}));
 	}
+	/**
+	 * Print statistics of some trace lists
+	 *
+	 * @param stream the trace lists
+	 * @throws IOException
+	 */
 	public static void collectExtracted(Stream<TraceList> stream) throws IOException{
 		FrequencyTable<Integer> traceCounter=new FrequencyTable<>();
 		Statistic traces=new Statistic("Trace");
 		Statistic points=new Statistic("Point");
 		Statistic width=new Statistic("Width");
 		Statistic height=new Statistic("Height");
+		Statistic traceWidth=new Statistic("Trace width");
+		Statistic traceHeight=new Statistic("Trace height");
+		Statistic length=new Statistic("Trace length");
 		for(Iterator<TraceList> iterator=stream.iterator();iterator.hasNext();){
 			TraceList traceList=iterator.next();
 			traceCounter.advance(traceList.getTraces().size());
 			traces.addSample(traceList.getTraces().size());
-			traceList.getTraces().forEach((t)->points.addSample(t.getPoints().size()));
+			traceList.getTraces().forEach((t)->{
+				points.addSample(t.getPoints().size());
+				traceWidth.addSample(t.getBoundBox().getWidth());
+				traceHeight.addSample(t.getBoundBox().getHeight());
+				length.addSample((int)SpeedNormalizer.getLength(t));
+			});
 			BoundBox boundBox=traceList.getBoundBox();
 			width.addSample(boundBox.getWidth());
 			height.addSample(boundBox.getHeight());
@@ -114,13 +151,17 @@ public class StatisticsCollectors{
 		System.out.println(points);
 		System.out.println(width);
 		System.out.println(height);
+		System.out.println(traceWidth);
+		System.out.println(traceHeight);
+		System.out.println(length);
 	}
 	public static void main(String[] args) throws IOException{
 		//collectByRender(Crohme.getTestStream2016(),Extractor.DEFAULT);
-		//collectFromImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),Extractor.DEFAULT);
-		collectGroundTruth(Crohme.getTestStream2019());
+		collectFromImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),Extractor.DEFAULT);
+//		collectGroundTruth(Crohme.getTrainStream2019());
+//		collectGroundTruth(Crohme.getTestStream2019());
 		collectGroundTruth(Crohme.getTestStream2016());
-		collectGroundTruth(Crohme.getValidationStream2016());
+//		collectGroundTruth(Crohme.getValidationStream2016());
 	}
 	private static class Statistic{
 		private final String name;

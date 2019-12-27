@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.crohme;
+import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.offline.extractor.*;
 import java.io.*;
 import java.nio.charset.*;
@@ -28,6 +29,7 @@ import org.xml.sax.*;
  */
 public class SymbolTest{
 	public static void export(File images,File inkmls,File json,Extractor configuration) throws IOException,ParserConfigurationException,SAXException{
+		JsonFormat jsonFormat=new JsonFormat();
 		try(BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(json),StandardCharsets.UTF_8))){
 			out.write("{\n");
 			boolean first=true;
@@ -49,7 +51,7 @@ public class SymbolTest{
 				out.write(new Ink(inkmlFile).getMeta().get("UI"));
 				out.write('"');
 				out.write(':');
-				TracerTests.exportTrace(configuration.extract(ImageIO.read(imageFile)),out);
+				jsonFormat.write(configuration.extract(ImageIO.read(imageFile)),out);
 				out.write('\n');
 			}
 			out.write('}');

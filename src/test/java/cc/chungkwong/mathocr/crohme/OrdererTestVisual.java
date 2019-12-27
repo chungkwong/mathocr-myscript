@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.crohme;
+import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.offline.extractor.orderer.*;
-import cc.chungkwong.mathocr.online.TraceList;
+import cc.chungkwong.mathocr.online.*;
 import cc.chungkwong.mathocr.ui.*;
 import java.awt.*;
 import java.util.*;

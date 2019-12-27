@@ -1,6 +1,6 @@
 # Offline handwritten mathematical expression recognition via stroke extraction
 
-The project provide a proof-of-concept stroke extractor that can extract strokes from clean
+The repository provide a proof-of-concept stroke extractor that can extract strokes from clean
 bitmap images. The stroke extractor can be used to recognize offline handwritten
 mathematical expression if a online recognizer is given. For example, when combined
 with MyScript, the resulting offline recognition system was **ranked #3 in the offline
@@ -12,7 +12,7 @@ Dataset|Correct|Up to 1 error|Up to 2 errors|Structural correct
 ---|---|---|---|---
 CROHME 2014|58.22%|71.60%|75.15%|77.38%
 CROHME 2016|65.65%|77.68%|82.56%|85.00%
-CROHME 2019|65.05%|||
+CROHME 2019|65.22%|78.48%|83.07%|84.90%
 
 Although good accuracy is achieved on datasets from CROHME, the program
 may produce poor results on real world images. For example, the procedure do not
@@ -61,4 +61,20 @@ Extractor extractor=new Extractor(myscriptRecognizer);
 File file=new File("Path to file to be recognized");
 EncodedExpression expression=extractor.recognize(ImageIO.read(file));
 String latexCode=expression.getCodes(new LatexFormat());
+```
+
+## Citation
+
+The idea used is explained in the article
+__Stroke extraction for offline handwritten mathematical expression recognition__
+, which is available at [arXiv](https://arxiv.org/abs/1905.06749).
+You can cite the article using the following BibTex code:
+
+```bibtex
+@misc{1905.06749,
+Author = {Chungkwong Chan},
+Title = {Stroke extraction for offline handwritten mathematical expression recognition},
+Year = {2019},
+Eprint = {arXiv:1905.06749},
+}
 ```

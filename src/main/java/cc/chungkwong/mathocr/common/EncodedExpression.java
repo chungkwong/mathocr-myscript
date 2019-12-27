@@ -15,22 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.common;
-import cc.chungkwong.mathocr.common.format.Format;
 import java.util.*;
+import cc.chungkwong.mathocr.common.format.ExpressionFormat;
 /**
  * Encoded mathematical expression
  *
  * @author Chan Chung Kwong
  */
 public class EncodedExpression{
-	private final Map<Format,String> codes;
+	private final Map<ExpressionFormat,String> codes;
 	private Expression expression;
 	/**
 	 * Create a encoded expression
 	 *
 	 * @param codes code in various formats
 	 */
-	public EncodedExpression(Map<Format,String> codes){
+	public EncodedExpression(Map<ExpressionFormat,String> codes){
 		this.codes=codes;
 	}
 	/**
@@ -39,7 +39,7 @@ public class EncodedExpression{
 	 * @param code code
 	 * @param format format
 	 */
-	public EncodedExpression(String code,Format format){
+	public EncodedExpression(String code,ExpressionFormat format){
 		this.codes=new LinkedHashMap<>();
 		codes.put(format,code);
 	}
@@ -57,10 +57,10 @@ public class EncodedExpression{
 	 * @param format a format
 	 * @return expression encoded in the given format
 	 */
-	public String getCodes(Format format){
+	public String getCodes(ExpressionFormat format){
 		if(!codes.containsKey(format)){
 			if(expression==null){
-				Map.Entry<Format,String> entry=codes.entrySet().iterator().next();
+				Map.Entry<ExpressionFormat,String> entry=codes.entrySet().iterator().next();
 				expression=entry.getKey().decode(entry.getValue());
 			}
 			codes.put(format,format.encode(expression));

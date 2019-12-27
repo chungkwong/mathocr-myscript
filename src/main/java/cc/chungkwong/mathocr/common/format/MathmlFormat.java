@@ -15,23 +15,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.common.format;
-import cc.chungkwong.mathocr.common.Expression;
-import static cc.chungkwong.mathocr.common.Expression.*;
+import cc.chungkwong.mathocr.common.*;
+import cc.chungkwong.mathocr.common.Expression.Fraction;
+import cc.chungkwong.mathocr.common.Expression.Line;
+import cc.chungkwong.mathocr.common.Expression.Matrix;
+import cc.chungkwong.mathocr.common.Expression.Over;
+import cc.chungkwong.mathocr.common.Expression.Radical;
+import cc.chungkwong.mathocr.common.Expression.Subscript;
+import cc.chungkwong.mathocr.common.Expression.Subsuperscript;
+import cc.chungkwong.mathocr.common.Expression.Superscript;
+import cc.chungkwong.mathocr.common.Expression.Symbol;
+import cc.chungkwong.mathocr.common.Expression.Under;
+import cc.chungkwong.mathocr.common.Expression.UnderOver;
 import java.io.*;
 import java.nio.charset.*;
 import java.util.*;
 import java.util.logging.*;
 import java.util.stream.*;
 import javax.xml.parsers.*;
-import org.w3c.dom.*;
 import org.w3c.dom.Node;
+import org.w3c.dom.*;
 import org.xml.sax.*;
 /**
  * MathML format
  *
  * @author Chan Chung Kwong
  */
-public class MathmlFormat implements Format{
+public class MathmlFormat implements ExpressionFormat{
 	public MathmlFormat(){
 	}
 	@Override
@@ -46,7 +56,13 @@ public class MathmlFormat implements Format{
 			Document document=DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8)));
 			return decode(document.getDocumentElement());
 		}catch(ParserConfigurationException|SAXException|IOException ex){
-			Logger.getLogger(MathmlFormat.class.getName()).log(Level.SEVERE,null,ex);
+			try{
+				code="<mrow>"+code+"</mrow>";
+				Document document=DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new ByteArrayInputStream(code.getBytes(StandardCharsets.UTF_8)));
+				return decode(document.getDocumentElement());
+			}catch(ParserConfigurationException|SAXException|IOException eex){
+				Logger.getLogger(MathmlFormat.class.getName()).log(Level.SEVERE,null,ex);
+			}
 		}
 		return new Expression.Line();
 	}

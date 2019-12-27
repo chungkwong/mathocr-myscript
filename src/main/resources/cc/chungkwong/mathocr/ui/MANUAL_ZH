@@ -9,7 +9,7 @@
 ---|---|---|---|---
 CROHME 2014|58.22%|71.60%|75.15%|77.38%
 CROHME 2016|65.65%|77.68%|82.56%|85.00%
-CROHME 2019|65.05%|||
+CROHME 2019|65.22%|78.48%|83.07%|84.90%
 
 虽然在CROHME数据集上取得了良好的表现，本程序对现实世界中的图片表现仍然可能未如理想。
 例如对以下类型的图片可能给出差劲的结果：
@@ -56,4 +56,18 @@ Extractor extractor=new Extractor(myscriptRecognizer);
 File file=new File("Path to file to be recognized");
 EncodedExpression expression=extractor.recognize(ImageIO.read(file));
 String latexCode=expression.getCodes(new LatexFormat());
+```
+
+## 引用
+
+本项目的描述参见文档 __通过笔划提取识别脱机手写数学公式__，它可从
+[arXiv](https://arxiv.org/abs/1905.06749)下载。你可以使用以下BibTex代码引用该文:
+
+```bibtex
+@misc{1905.06749,
+Author = {Chungkwong Chan},
+Title = {Stroke extraction for offline handwritten mathematical expression recognition},
+Year = {2019},
+Eprint = {arXiv:1905.06749},
+}
 ```

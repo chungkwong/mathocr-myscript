@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.crohme;
-import cc.chungkwong.mathocr.offline.extractor.tracer.Segment;
-import cc.chungkwong.mathocr.online.TracePoint;
-import cc.chungkwong.mathocr.online.Trace;
+import cc.chungkwong.mathocr.common.format.*;
+import cc.chungkwong.mathocr.offline.extractor.tracer.*;
+import cc.chungkwong.mathocr.online.*;
 import java.util.*;
 import java.util.stream.*;
 /**
@@ -127,7 +127,7 @@ public class StrokeDirectionTests{
 	private static void printAngleHistogram(){
 		long[] directionCount=new long[9];
 		long[] count={0,0};
-		Crohme.getFullStream2016().flatMap((ink)->ink.getTraceList().getTraces().stream()).forEach((trace)->{
+		Crohme.getFullStream().flatMap((ink)->ink.getTraceList().getTraces().stream()).forEach((trace)->{
 			//for(int i=1;i<trace.getPoints().size();i++){
 			//	++directionCount[getDirection(trace.getPoints().get(i-1),trace.getPoints().get(i))];
 			//}

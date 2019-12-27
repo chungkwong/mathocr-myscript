@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.crohme;
-import cc.chungkwong.mathocr.common.format.JiixFormat;
-import cc.chungkwong.mathocr.common.Expression;
+import cc.chungkwong.mathocr.common.*;
+import cc.chungkwong.mathocr.common.format.*;
 import java.io.*;
 import java.nio.charset.*;
 import java.nio.file.*;
@@ -375,7 +375,8 @@ public class InkmlGenerator{
 //		generate(new File(Crohme.DIRECTORY_RESULT+"/img2014_std"),true);
 //		generate(new File(Crohme.DIRECTORY_RESULT+"/img2014_crohme"),true);
 //		generate(new File(Crohme.DIRECTORY_RESULT+"/2019off"),true);
-		generate(new File(Crohme.DIRECTORY_RESULT+"/2019on"),true);
+//		generate(new File(Crohme.DIRECTORY_RESULT+"/2019on"),true);
+		generate(new File(Crohme.DIRECTORY_RESULT+"/otsu2014"),true);
 //		generate(new File(Crohme.DIRECTORY_RESULT+"/test2016_crohme"),true);
 //		generate(new File(Crohme.DIRECTORY_RESULT+"/test2016_std"),true);
 	}

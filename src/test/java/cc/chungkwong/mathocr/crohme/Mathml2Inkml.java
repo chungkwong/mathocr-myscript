@@ -39,7 +39,7 @@ public class Mathml2Inkml{
 	 * @throws ParserConfigurationException
 	 * @throws SAXException
 	 */
-	public static void generate(File directory,boolean lg) throws IOException,ParserConfigurationException,SAXException{
+	public static void generate(File directory,boolean lg,boolean latex) throws IOException,ParserConfigurationException,SAXException{
 		Path content=new File(directory,"list").toPath();
 		Map<String,String> gt=Files.exists(content)?Files.lines(content).
 				filter((line)->line.contains(", ")).
@@ -60,7 +60,7 @@ public class Mathml2Inkml{
 			jiix=jiix.replaceFirst("</math>","</mrow>");
 			//System.out.println(jiix);
 			//convert(jiix,ui,lg);
-			Files.write(inkfile.toPath(),Arrays.asList(convert(jiix,ui,lg)),StandardCharsets.UTF_8);
+			Files.write(inkfile.toPath(),Arrays.asList(convert(jiix,ui,lg,latex)),StandardCharsets.UTF_8);
 		}
 //		if(lg){
 //			String mml2symlg=Crohme.DIRECTORY_2016+"/evaluationTools/mathmleval/mml2symlg";
@@ -79,14 +79,14 @@ public class Mathml2Inkml{
 	 * @param lg if the output is used to generate LG file
 	 * @return
 	 */
-	public static String convert(String jiix,String name,boolean lg){
+	public static String convert(String jiix,String name,boolean lg,boolean latex){
 		StringBuilder buf=new StringBuilder();
 		buf.append("<ink xmlns=\"http://www.w3.org/2003/InkML\">\n<annotation type=\"UI\">");
 		buf.append(name);
 		buf.append("</annotation>\n<annotationXML type=\"truth\" encoding=\"Content-MathML\">\n<math xmlns='http://www.w3.org/1998/Math/MathML'>");
 		try{
 			Expression expr=new MathmlFormat().decode(jiix);
-			encodeMathml(expr,buf,lg?RENAME_LG:RENAME);
+			encodeMathml(expr,buf,lg?RENAME_LG:RENAME,latex);
 		}catch(Exception e){
 			Logger.getGlobal().log(Level.INFO,name,e);
 		}
@@ -241,7 +241,7 @@ public class Mathml2Inkml{
 		RENAME_LG.put("×","\\times");
 		RENAME_LG.put("·",".");
 	}
-	static void encodeMathml(Expression span,StringBuilder buf,Map<String,String> rename){
+	static void encodeMathml(Expression span,StringBuilder buf,Map<String,String> rename,boolean latex){
 		if(span instanceof Expression.Symbol){
 			String name=((Expression.Symbol)span).getName();
 			if(name.codePointCount(0,name.length())==1||"sin".equals(name)
@@ -269,39 +269,39 @@ public class Mathml2Inkml{
 		}else if(span instanceof Expression.Line){
 			buf.append("<mrow>");
 			for(Expression comp:((Expression.Line)span).getSpans()){
-				encodeMathml(comp,buf,rename);
+				encodeMathml(comp,buf,rename,latex);
 			}
 			buf.append("</mrow>");
 		}else if(span instanceof Expression.Subscript){
 			buf.append("<msub>");
-			encodeMathml(((Expression.Subscript)span).getBase(),buf,rename);
-			encodeMathml(((Expression.Subscript)span).getSubscript(),buf,rename);
+			encodeMathml(((Expression.Subscript)span).getBase(),buf,rename,latex);
+			encodeMathml(((Expression.Subscript)span).getSubscript(),buf,rename,latex);
 			buf.append("</msub>");
 		}else if(span instanceof Expression.Superscript){
 			buf.append("<msup>");
-			encodeMathml(((Expression.Superscript)span).getBase(),buf,rename);
-			encodeMathml(((Expression.Superscript)span).getSuperscript(),buf,rename);
+			encodeMathml(((Expression.Superscript)span).getBase(),buf,rename,latex);
+			encodeMathml(((Expression.Superscript)span).getSuperscript(),buf,rename,latex);
 			buf.append("</msup>");
 		}else if(span instanceof Expression.Subsuperscript){
 			buf.append("<msubsup>");
-			encodeMathml(((Expression.Subsuperscript)span).getBase(),buf,rename);
-			encodeMathml(((Expression.Subsuperscript)span).getSubscript(),buf,rename);
-			encodeMathml(((Expression.Subsuperscript)span).getSuperscript(),buf,rename);
+			encodeMathml(((Expression.Subsuperscript)span).getBase(),buf,rename,latex);
+			encodeMathml(((Expression.Subsuperscript)span).getSubscript(),buf,rename,latex);
+			encodeMathml(((Expression.Subsuperscript)span).getSuperscript(),buf,rename,latex);
 			buf.append("</msubsup>");
 		}else if(span instanceof Expression.Fraction){
 			buf.append("<mfrac>");
-			encodeMathml(((Expression.Fraction)span).getNumerator(),buf,rename);
-			encodeMathml(((Expression.Fraction)span).getDenominator(),buf,rename);
+			encodeMathml(((Expression.Fraction)span).getNumerator(),buf,rename,latex);
+			encodeMathml(((Expression.Fraction)span).getDenominator(),buf,rename,latex);
 			buf.append("</mfrac>");
 		}else if(span instanceof Expression.Radical){
 			if(((Expression.Radical)span).getPower()!=null){
 				buf.append("<mroot>");
-				encodeMathml(((Expression.Radical)span).getRadicand(),buf,rename);
-				encodeMathml(((Expression.Radical)span).getPower(),buf,rename);
+				encodeMathml(((Expression.Radical)span).getRadicand(),buf,rename,latex);
+				encodeMathml(((Expression.Radical)span).getPower(),buf,rename,latex);
 				buf.append("</mroot>");
 			}else{
 				buf.append("<msqrt>");
-				encodeMathml(((Expression.Radical)span).getRadicand(),buf,rename);
+				encodeMathml(((Expression.Radical)span).getRadicand(),buf,rename,latex);
 				buf.append("</msqrt>");
 			}
 		}else if(span instanceof Expression.Matrix){
@@ -310,7 +310,7 @@ public class Mathml2Inkml{
 				buf.append("<mtr>");
 				for(Expression cell:row){
 					buf.append("<mtd>");
-					encodeMathml(cell,buf,rename);
+					encodeMathml(cell,buf,rename,latex);
 					buf.append("</mtd>");
 				}
 				buf.append("</mtr>");
@@ -318,11 +318,11 @@ public class Mathml2Inkml{
 			buf.append("</mtable>");
 		}else if(span instanceof Expression.Over){
 			buf.append("<mover>");
-			encodeMathml(((Expression.Over)span).getContent(),buf,rename);
-			encodeMathml(((Expression.Over)span).getOver(),buf,rename);
+			encodeMathml(((Expression.Over)span).getContent(),buf,rename,latex);
+			encodeMathml(((Expression.Over)span).getOver(),buf,rename,latex);
 			buf.append("</mover>");
 		}else if(span instanceof Expression.Under){
-			boolean s=false;
+			boolean s=latex;
 			if(((Expression.Under)span).getContent() instanceof Expression.Line){
 				Expression.Line line=(Expression.Line)((Expression.Under)span).getContent();
 				if(line.getSpans().size()==1&&line.getSpans().get(0) instanceof Expression.Symbol){
@@ -330,11 +330,11 @@ public class Mathml2Inkml{
 				}
 			}
 			buf.append(s?"<msub>":"<munder>");
-			encodeMathml(((Expression.Under)span).getContent(),buf,rename);
-			encodeMathml(((Expression.Under)span).getUnder(),buf,rename);
+			encodeMathml(((Expression.Under)span).getContent(),buf,rename,latex);
+			encodeMathml(((Expression.Under)span).getUnder(),buf,rename,latex);
 			buf.append(s?"</msub>":"</munder>");
 		}else if(span instanceof Expression.UnderOver){
-			boolean s=false;
+			boolean s=latex;
 			if(((Expression.UnderOver)span).getContent() instanceof Expression.Line){
 				Expression.Line line=(Expression.Line)((Expression.UnderOver)span).getContent();
 				if(line.getSpans().size()==1&&line.getSpans().get(0) instanceof Expression.Symbol){
@@ -342,9 +342,9 @@ public class Mathml2Inkml{
 				}
 			}
 			buf.append(s?"<msubsup>":"<munderover>");
-			encodeMathml(((Expression.UnderOver)span).getContent(),buf,rename);
-			encodeMathml(((Expression.UnderOver)span).getUnder(),buf,rename);
-			encodeMathml(((Expression.UnderOver)span).getOver(),buf,rename);
+			encodeMathml(((Expression.UnderOver)span).getContent(),buf,rename,latex);
+			encodeMathml(((Expression.UnderOver)span).getUnder(),buf,rename,latex);
+			encodeMathml(((Expression.UnderOver)span).getOver(),buf,rename,latex);
 			buf.append(s?"</msubsup>":"</munderover>");
 		}else{
 			System.out.println("Unknown type:"+span);
@@ -375,8 +375,10 @@ public class Mathml2Inkml{
 		}
 	}
 	public static void main(String[] args) throws IOException,ParserConfigurationException,SAXException{
-//		generate(new File(Crohme.DIRECTORY_RESULT+"/2019mml"),true);
-//		generate(new File(Crohme.DIRECTORY_RESULT+"/off2019"),true);
-		generate(new File(Crohme.DIRECTORY_RESULT+"/test2019"),true);
+//		generate(new File(Crohme.DIRECTORY_RESULT+"/raw2014"),true,true);
+//		generate(new File(Crohme.DIRECTORY_RESULT+"/raw2016"),true,false);
+//		generate(new File(Crohme.DIRECTORY_RESULT+"/offline2014"),true,true);
+//		generate(new File(Crohme.DIRECTORY_RESULT+"/offline2016"),true,false);
+		generate(new File(Crohme.DIRECTORY_RESULT+"/old2016"),true,false);
 	}
 }

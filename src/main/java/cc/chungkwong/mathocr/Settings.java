@@ -197,9 +197,9 @@ public class Settings{
 		intMap.put("KFILL_WINDOW",pref.getInt("KFILL_WINDOW",3));
 		intMap.put("NOISE_THREHOLD",pref.getInt("NOISE_THREHOLD",2));
 		intMap.put("MANUAL_THREHOLD_LIMIT",pref.getInt("MANUAL_THREHOLD_LIMIT",195));
-		intMap.put("SAUVOLA_WINDOW",pref.getInt("SAUVOLA_WINDOW",128));
-		intMap.put("DPI",pref.getInt("DPI",576));
-		doubleMap.put("SAUVOLA_WEIGHT",pref.getDouble("SAUVOLA_WEIGHT",0.11));
+		intMap.put("SAUVOLA_WINDOW",pref.getInt("SAUVOLA_WINDOW",21));
+		intMap.put("DPI",pref.getInt("DPI",384));
+		doubleMap.put("SAUVOLA_WEIGHT",pref.getDouble("SAUVOLA_WEIGHT",0.5));
 		strMap.put("SKEW_DETECT_METHOD",pref.get("SKEW_DETECT_METHOD","PP"));
 		strMap.putIfAbsent("MYSCRIPT_GRAMMAR",pref.get("MYSCRIPT_GRAMMAR",null));
 		String appId=pref.get("MYSCRIPT_APPLICATION",null);

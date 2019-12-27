@@ -33,7 +33,7 @@ import java.util.*;
  *
  * @author Chan Chung Kwong
  */
-public class PlainFormat implements Format{
+public class PlainFormat implements ExpressionFormat{
 	public PlainFormat(){
 	}
 	@Override

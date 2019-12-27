@@ -32,7 +32,7 @@ public class PPDetector extends SearchBasedDetector{
 		super(strategy);
 	}
 	@Override
-	protected double getCost(int[] pixels,int width,int height,double theta){
+	protected double getCost(byte[] pixels,int width,int height,double theta){
 		int len=width*height;
 		double k=Math.tan(theta), sum=0, sqsum=0;
 		int[] offset=new int[width];
@@ -43,7 +43,7 @@ public class PPDetector extends SearchBasedDetector{
 			int count=0;
 			for(int j=0;j<width;j++){
 				int ind=(i+offset[j])*width+j;
-				if(ind>=0&&ind<len&&pixels[ind]==0xff000000){
+				if(ind>=0&&ind<len&&pixels[ind]==0x00){
 					++count;
 				}
 			}

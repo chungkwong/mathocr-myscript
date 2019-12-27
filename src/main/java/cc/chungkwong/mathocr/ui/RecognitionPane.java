@@ -30,7 +30,7 @@ public class RecognitionPane extends JSplitPane{
 	private final TraceListViewer input=new TraceListViewer();
 	private final JCheckBox realtime=new JCheckBox(bundle.getString("REALTIME"),false);
 	private final JButton recognize=new JButton(bundle.getString("RECOGNIZE"));
-	private final JComboBox<Format> formats=new JComboBox<>();
+	private final JComboBox<ExpressionFormat> formats=new JComboBox<>();
 	private final JTextArea code=new JTextArea();
 	private EncodedExpression expression;
 	private boolean recognizing=false;
@@ -83,7 +83,7 @@ public class RecognitionPane extends JSplitPane{
 	}
 	public void format(){
 		if(expression!=null){
-			code.setText(expression.getCodes((Format)formats.getSelectedItem()));
+			code.setText(expression.getCodes((ExpressionFormat)formats.getSelectedItem()));
 		}
 	}
 }

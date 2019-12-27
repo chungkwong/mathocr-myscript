@@ -32,7 +32,7 @@ public class PCPDetector extends SearchBasedDetector{
 		super(strategy);
 	}
 	@Override
-	protected double getCost(int[] pixels,int width,int height,double theta){
+	protected double getCost(byte[] pixels,int width,int height,double theta){
 		int len=width*height, area=0, dx=width/20;
 		double k=Math.tan(theta);
 		int[] offset=new int[width];
@@ -43,7 +43,7 @@ public class PCPDetector extends SearchBasedDetector{
 			int count=0, next=dx-1;
 			for(int j=0;j<width;j++){
 				int ind=(i+offset[j])*width+j;
-				if(ind>=0&&ind<len&&pixels[ind]!=0xffffffff){
+				if(ind>=0&&ind<len&&pixels[ind]==0){
 					++count;
 				}
 				if(j==next){
@@ -63,7 +63,7 @@ public class PCPDetector extends SearchBasedDetector{
 			int count=0, next=i+dx-1;
 			for(int j=i, l=0;j<width;j++,l++){
 				int ind=(row+offset[l])*width+j;
-				if(ind>=0&&ind<len&&pixels[ind]!=0xffffffff){
+				if(ind>=0&&ind<len&&pixels[ind]==0){
 					++count;
 				}
 				if(j==next){

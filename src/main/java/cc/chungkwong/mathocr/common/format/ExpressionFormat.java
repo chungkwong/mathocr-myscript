@@ -14,33 +14,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cc.chungkwong.mathocr.offline.preprocessor;
-import cc.chungkwong.mathocr.*;
+package cc.chungkwong.mathocr.common.format;
+import cc.chungkwong.mathocr.common.Expression;
 /**
+ * A format for mathematical expression
  *
  * @author Chan Chung Kwong
  */
-public class FixedBinarizer extends GlobalBinarizer{
-	private final int threhold;
-	/*
-	 * Construct a Threhold with fixed threhold value from global settings
+public interface ExpressionFormat{
+	/**
+	 * Encode an expression
+	 *
+	 * @param expression to be encoded
+	 * @return the code
 	 */
-	public FixedBinarizer(){
-		this.threhold=Settings.DEFAULT.getInteger("MANUAL_THREHOLD_LIMIT");
-	}
-	/*
-	 * Construct a Threhold with fixed threhold value
-	 * @param threhold threhold value
+	String encode(Expression expression);
+	/**
+	 * Decode
+	 *
+	 * @param code to be decoded
+	 * @return the expression
 	 */
-	public FixedBinarizer(int threhold){
-		this.threhold=threhold;
-	}
-	/*
-	 * Get the threhold value
-	 * @param pixels pixel array of the input image
-	 * @return threhold value
-	 */
-	protected int getThrehold(byte[] pixels){
-		return threhold;
-	}
+	Expression decode(String code);
 }

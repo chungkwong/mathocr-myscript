@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.common;
+import java.io.*;
 import java.util.*;
 /**
  * Pair of objects
@@ -23,7 +24,7 @@ import java.util.*;
  * @param <K> type of first object
  * @param <V> type of second object
  */
-public class Pair<K,V>{
+public class Pair<K,V> implements Serializable{
 	private final K key;
 	private final V value;
 	/**

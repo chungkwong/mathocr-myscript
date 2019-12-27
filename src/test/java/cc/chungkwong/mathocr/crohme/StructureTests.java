@@ -53,7 +53,7 @@ public class StructureTests{
 		TraceList order=config.getOrderer().order(new TraceList(new ArrayList<>(symbols.keySet())));
 		TraceList extracted=new TraceList();
 		order.getTraces().forEach((t)->append(t.getBoundBox(),symbols.get(t),extracted));
-		return TracerTests.rescale(extracted,TracerTests.IMAGE_BOX);
+		return extracted.rescale(TracerTests.IMAGE_BOX);
 	}
 	private static void append(BoundBox box,String symbol,TraceList list){
 		TraceList sample=SAMPLES.get(symbol);
@@ -63,7 +63,7 @@ public class StructureTests{
 		}
 		if(symbol.equals("\\sqrt")){
 			int x1=box.getLeft()+sample.getBoundBox().getWidth()*box.getHeight()/sample.getBoundBox().getHeight();
-			Trace trace=TracerTests.rescale(sample,new BoundBox(box.getLeft(),x1,box.getTop(),box.getBottom())).getTraces().get(0);
+			Trace trace=sample.rescale(new BoundBox(box.getLeft(),x1,box.getTop(),box.getBottom())).getTraces().get(0);
 			int x2=box.getRight();
 			int y=box.getTop();
 			for(int i=0;i<100;i++){
@@ -80,7 +80,7 @@ public class StructureTests{
 			}
 			list.getTraces().add(trace);
 		}else{
-			list.getTraces().addAll(TracerTests.rescale(sample,box).getTraces());
+			list.getTraces().addAll(sample.rescale(box).getTraces());
 		}
 	}
 	private static final Map<String,TraceList> SAMPLES=new HashMap<>();
@@ -292,7 +292,7 @@ public class StructureTests{
 		generate(new File(Crohme.DIRECTORY_RESULT+"/struct2014"),false);
 	}
 }
-class MyJiixFormat implements Format{
+class MyJiixFormat implements ExpressionFormat{
 	private final ObjectMapper mapper=new ObjectMapper();
 	private final BoundBox inkBox;
 	private final Ink ink;

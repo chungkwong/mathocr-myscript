@@ -16,7 +16,7 @@
  */
 package cc.chungkwong.mathocr.crohme;
 import cc.chungkwong.mathocr.common.*;
-import static cc.chungkwong.mathocr.crohme.TracerTests.importTrace;
+import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.offline.extractor.*;
 import cc.chungkwong.mathocr.online.*;
 import cc.chungkwong.mathocr.ui.*;
@@ -49,7 +49,7 @@ public class OrderedTracerTests{
 			int dx=boundBox.getLeft()-TraceListViewer.MARGIN_H;
 			int dy=boundBox.getTop()-TraceListViewer.MARGIN_V;
 			TraceList extracted=configuration.extract(TraceListViewer.renderImage(list),true);
-			return new Pair<>(list,TracerTests.transform(extracted,dx,dy));
+			return new Pair<>(list,extracted.translate(dx,dy));
 		}));
 	}
 	/**
@@ -73,8 +73,8 @@ public class OrderedTracerTests{
 //					extracted=configuration.getGraphTracer().trace(configuration.getTracer().trace(preprocessed));
 //					System.out.println("scaled");
 //				}
-				TraceList groundtruch=ink.getTraceList();
-				return new Pair<>(TracerTests.rescale(groundtruch,TracerTests.IMAGE_BOX),extracted);
+				TraceList groundtruth=ink.getTraceList();
+				return new Pair<>(groundtruth.rescale(TracerTests.IMAGE_BOX),extracted);
 			}catch(IOException|ParserConfigurationException|SAXException ex){
 				Logger.getLogger(TracerTests.class.getName()).log(Level.SEVERE,null,ex);
 				return new Pair<>(new TraceList(),new TraceList());
@@ -98,7 +98,7 @@ public class OrderedTracerTests{
 				String code=new String(Files.readAllBytes(new File(jiixs,path.toFile().getName().replace(".inkml",".jiix")).toPath()),StandardCharsets.UTF_8);
 				collectJiixTrace((List<Map<String,Object>>)new ObjectMapper().readValue(code,Map.class).get("expressions"),extracted);
 				TraceList groundtruth=ink.getTraceList();
-				return new Pair<>(TracerTests.rescale(groundtruth,extracted.getBoundBox()),extracted);
+				return new Pair<>(groundtruth.rescale(extracted.getBoundBox()),extracted);
 			}catch(IOException|ParserConfigurationException|SAXException ex){
 				Logger.getLogger(TracerTests.class.getName()).log(Level.SEVERE,null,ex);
 				return new Pair<>(new TraceList(),new TraceList());
@@ -138,13 +138,14 @@ public class OrderedTracerTests{
 	 * @throws java.io.IOException
 	 */
 	public static void testJson(File inkmls,File jsons,double scale) throws IOException{
+		JsonFormat jsonFormat=new JsonFormat();
 		test(Files.list(inkmls.toPath()).filter((path)->path.toString().endsWith(".inkml")).map((Path path)->{
 			try{
 				Ink ink=new Ink(path.toFile());
-				TraceList extracted=importTrace(new File(jsons,path.toFile().getName().replace(".inkml",".json")));
+				TraceList extracted=jsonFormat.read(new File(jsons,path.toFile().getName().replace(".inkml",".json")));
 				//String code=new String(Files.readAllBytes(new File(jiixs,path.toFile().getName().replace(".inkml",".jiix")).toPath()),StandardCharsets.UTF_8);
 				TraceList groundtruth=ink.getTraceList();
-				return new Pair<>(TracerTests.rescale(groundtruth,TracerTests.IMAGE_BOX.scale(scale)),extracted);
+				return new Pair<>(groundtruth.rescale(TracerTests.IMAGE_BOX.scale(scale)),extracted);
 			}catch(IOException|ParserConfigurationException|SAXException ex){
 				Logger.getLogger(TracerTests.class.getName()).log(Level.SEVERE,null,ex);
 				return new Pair<>(new TraceList(),new TraceList());
@@ -167,7 +168,7 @@ public class OrderedTracerTests{
 			if(list0.getTraces().size()==list1.getTraces().size()){
 				++exact;
 				for(int i=0;i<list0.getTraces().size();i++){
-					if(TracerTests.getDistance(list0.getTraces().get(i),list1.getTraces().get(i))>THREHOLD){
+					if(TraceList.getDistance(list0.getTraces().get(i),list1.getTraces().get(i))>THREHOLD){
 						--exact;
 						break;
 					}
@@ -178,21 +179,27 @@ public class OrderedTracerTests{
 		System.out.format("Exact:%d(%f)%n",exact,exact*1.0/exprCount);
 		System.out.format("TIME:%dms%n",System.currentTimeMillis()-start);
 	}
-	private static final int THREHOLD=TraceListViewer.THICK*TraceListViewer.THICK*2*2*4;
+	private static final int THREHOLD=2*2*4*4;
 	public static void main(String[] args) throws Exception{
 //		testByRender(Crohme.getValidationStream2016().map((ink)->ink.getTraceList()),Configuration.DEFAULT);
 //		testByRender(Crohme.getTestStream2016().map((ink)->ink.getTraceList()),Extractor.DEFAULT);
-//		testImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid/TestEM2014GT_INKMLs"),
-//				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
-//				Configuration.DEFAULT);
+		testImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid/TestEM2014GT_INKMLs"),
+				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
+				Extractor.DEFAULT);
+		testImage(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
+				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
+				Extractor.DEFAULT);
+		testImage(new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Inkmls_Test2019"),
+				new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Images_Test2019"),
+				Extractor.DEFAULT);
 //		testJiix(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
 //				new File(Crohme.DIRECTORY_RESULT+"/2016/result_jiix"),
 //				Configuration.DEFAULT);
-		testJson(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
-				new File(Crohme.DIRECTORY_RESULT+"/test2016/result_stroke"),
-				1.5);
-		testJson(new File(Crohme.DIRECTORY_2016+"/CROHME2014_data/TestEM2014GT"),
-				new File(Crohme.DIRECTORY_RESULT+"/test2014/result_stroke"),
-				1.5);
+//		testJson(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
+//				new File(Crohme.DIRECTORY_RESULT+"/test2016/result_stroke"),
+//				1.5);
+//		testJson(new File(Crohme.DIRECTORY_2016+"/CROHME2014_data/TestEM2014GT"),
+//				new File(Crohme.DIRECTORY_RESULT+"/test2014/result_stroke"),
+//				1.5);
 	}
 }

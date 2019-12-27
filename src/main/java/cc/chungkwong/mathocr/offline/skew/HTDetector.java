@@ -32,12 +32,12 @@ public class HTDetector extends SearchBasedDetector{
 		super(strategy);
 	}
 	@Override
-	protected double getCost(int[] pixels,int width,int height,double theta){
+	protected double getCost(byte[] pixels,int width,int height,double theta){
 		double c=Math.cos(Math.PI/2-theta), s=Math.sin(Math.PI/2-theta);
 		int[] acc=new int[((int)Math.hypot(width,height)+1)/20];
 		for(int i=0, ind=0;i<height;++i){
 			for(int j=0;j<width;++j,++ind){
-				if(pixels[ind]!=0xffffffff){
+				if(pixels[ind]==0x00){
 					++acc[(int)(Math.abs(j*c-i*s))/20];
 				}
 			}

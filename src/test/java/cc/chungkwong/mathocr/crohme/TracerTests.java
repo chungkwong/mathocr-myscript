@@ -16,10 +16,10 @@
  */
 package cc.chungkwong.mathocr.crohme;
 import cc.chungkwong.mathocr.common.*;
+import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.offline.extractor.*;
 import cc.chungkwong.mathocr.online.*;
 import cc.chungkwong.mathocr.ui.*;
-import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.databind.*;
 import java.awt.geom.*;
 import java.awt.image.*;
@@ -50,8 +50,8 @@ public class TracerTests{
 			int dx=boundBox.getLeft()-TraceListViewer.MARGIN_H;
 			int dy=boundBox.getTop()-TraceListViewer.MARGIN_V;
 			TraceList extracted=configuration.extract(TraceListViewer.renderImage(list),false);
-			return new Pair<>(list,TracerTests.transform(extracted,dx,dy));
-		}),configuration,TraceListViewer.THICK*TraceListViewer.THICK*16);
+			return new Pair<>(list,extracted.translate(dx,dy));
+		}),TraceListViewer.THICK*TraceListViewer.THICK*16);
 	}
 	/**
 	 * Test by rendering strokes into image, scale the image and than extract
@@ -65,8 +65,8 @@ public class TracerTests{
 		test(iterator.map((list)->{
 			BufferedImage image=op.filter(TraceListViewer.renderImage(list),null);
 			TraceList extracted=configuration.extract(image,false);
-			return new Pair<>(rescale(list,list.getBoundBox().scale(scale)),extracted);
-		}),configuration,(int)(TraceListViewer.THICK*TraceListViewer.THICK*16*scale*scale));
+			return new Pair<>(list.rescale(list.getBoundBox().scale(scale)),extracted);
+		}),(int)(TraceListViewer.THICK*TraceListViewer.THICK*16*scale*scale));
 	}
 	/**
 	 * Compare extracted strokes from image with ground truth
@@ -89,13 +89,13 @@ public class TracerTests{
 //					extracted=configuration.getGraphTracer().trace(configuration.getTracer().trace(preprocessed));
 //					System.out.println("scaled");
 //				}
-				TraceList groundtruch=ink.getTraceList();
-				return new Pair<>(rescale(groundtruch,IMAGE_BOX.scale(1.5)),extracted);
+				TraceList groundtruth=ink.getTraceList();
+				return new Pair<>(groundtruth.rescale(IMAGE_BOX.scale(1.5)),extracted);
 			}catch(IOException|ParserConfigurationException|SAXException ex){
 				Logger.getLogger(TracerTests.class.getName()).log(Level.SEVERE,null,ex);
 				return new Pair<>(new TraceList(),new TraceList());
 			}
-		}),configuration,(int)(THREHOLD*1.5*1.5));
+		}),(int)(THREHOLD*1.5*1.5));
 	}
 	/**
 	 * Compare extracted strokes from image with ground truth
@@ -104,14 +104,17 @@ public class TracerTests{
 	 * @param images directory containing images
 	 * @param configuration configuration of tracer
 	 * @param scale
+	 * @return accuracy
 	 * @throws IOException
 	 */
-	public static void testImage(File inkmls,File images,Extractor configuration,double scale) throws IOException{
-		test(Files.list(inkmls.toPath()).filter((path)->path.toString().endsWith(".inkml")).map((Path path)->{
+	public static double testImage(File inkmls,File images,Extractor configuration,double scale) throws IOException{
+		return test(Files.list(inkmls.toPath()).filter((path)->path.toString().endsWith(".inkml")).map((Path path)->{
 			try{
 				Ink ink=new Ink(path.toFile());
 				BufferedImage image=ImageIO.read(new File(images,path.toFile().getName().replace(".inkml",".png")));
-				image=new AffineTransformOp(AffineTransform.getScaleInstance(scale,scale),AffineTransformOp.TYPE_BILINEAR).filter(image,null);
+				if(scale!=1.0){
+					image=new AffineTransformOp(AffineTransform.getScaleInstance(scale,scale),AffineTransformOp.TYPE_BILINEAR).filter(image,null);
+				}
 				TraceList extracted=configuration.extract(image,false);
 //				if(extracted.getTraces().stream().mapToInt((t)->t.getBoundBox().getHeight()).max().orElse(0)<80){
 //					image=new AffineTransformOp(AffineTransform.getScaleInstance(2,2),AffineTransformOp.TYPE_BILINEAR).filter(image,null);
@@ -119,13 +122,13 @@ public class TracerTests{
 //					extracted=configuration.getGraphTracer().trace(configuration.getTracer().trace(preprocessed));
 //					System.out.println("scaled");
 //				}
-				TraceList groundtruch=ink.getTraceList();
-				return new Pair<>(rescale(groundtruch,IMAGE_BOX.scale(scale)),extracted);
+				TraceList groundtruth=ink.getTraceList();
+				return new Pair<>(groundtruth.rescale(IMAGE_BOX.scale(scale)),extracted);
 			}catch(IOException|ParserConfigurationException|SAXException ex){
 				Logger.getLogger(TracerTests.class.getName()).log(Level.SEVERE,null,ex);
 				return new Pair<>(new TraceList(),new TraceList());
 			}
-		}),configuration,(int)(THREHOLD*scale*scale));
+		}),(int)(THREHOLD*scale*scale));
 	}
 	/**
 	 * Compare extracted strokes from image with ground truth
@@ -141,12 +144,12 @@ public class TracerTests{
 				Ink ink=new Ink(path.toFile());
 				TraceList extracted=getJiixTraceList(new File(jiixs,path.toFile().getName().replace(".inkml",".jiix")));
 				TraceList groundtruth=ink.getTraceList();
-				return new Pair<>(rescale(groundtruth,extracted.getBoundBox()),extracted);
+				return new Pair<>(groundtruth.rescale(extracted.getBoundBox()),extracted);
 			}catch(IOException|ParserConfigurationException|SAXException ex){
 				Logger.getLogger(TracerTests.class.getName()).log(Level.SEVERE,null,ex);
 				return new Pair<>(new TraceList(),new TraceList());
 			}
-		}),configuration,THREHOLD);
+		}),THREHOLD);
 	}
 	static TraceList getJiixTraceList(File jiix) throws IOException{
 		TraceList extracted=new TraceList();
@@ -190,14 +193,14 @@ public class TracerTests{
 		test(Files.list(inkmls.toPath()).filter((path)->path.toString().endsWith(".inkml")).map((Path path)->{
 			try{
 				Ink ink=new Ink(path.toFile());
-				TraceList extracted=importTrace(new File(jsons,path.toFile().getName().replace(".inkml",".json")));
+				TraceList extracted=new JsonFormat().read(new File(jsons,path.toFile().getName().replace(".inkml",".json")));
 				TraceList groundtruth=ink.getTraceList();
-				return new Pair<>(rescale(groundtruth,IMAGE_BOX),extracted);
+				return new Pair<>(groundtruth.rescale(IMAGE_BOX),extracted);
 			}catch(IOException|ParserConfigurationException|SAXException ex){
 				Logger.getLogger(TracerTests.class.getName()).log(Level.SEVERE,null,ex);
 				return new Pair<>(new TraceList(),new TraceList());
 			}
-		}),configuration,THREHOLD);
+		}),THREHOLD);
 	}
 	/**
 	 * Compare extracted strokes from image with ground truth
@@ -212,28 +215,28 @@ public class TracerTests{
 		test(Files.list(inkmls.toPath()).filter((path)->path.toString().endsWith(".inkml")).map((Path path)->{
 			try{
 				Ink ink=new Ink(path.toFile());
-				TraceList extracted=importTrace(new File(jsons,path.toFile().getName().replace(".inkml",".json")));
+				TraceList extracted=new JsonFormat().read(new File(jsons,path.toFile().getName().replace(".inkml",".json")));
 				TraceList groundtruth=ink.getTraceList();
-				return new Pair<>(rescale(groundtruth,IMAGE_BOX.scale(scale)),extracted);
+				return new Pair<>(groundtruth.rescale(IMAGE_BOX.scale(scale)),extracted);
 			}catch(IOException|ParserConfigurationException|SAXException ex){
 				Logger.getLogger(TracerTests.class.getName()).log(Level.SEVERE,null,ex);
 				return new Pair<>(new TraceList(),new TraceList());
 			}
-		}),configuration,(int)(THREHOLD*scale*scale));
+		}),(int)(THREHOLD*scale*scale));
 	}
 	/**
 	 * Start test
 	 *
 	 * @param stream pairs of ground truth and extracted strokes
-	 * @param configuration configuration of the tracer tested
 	 * @param threhold maximal Hausdorff distance to be counted matched
+	 * @return accuracy
 	 */
-	public static void test(Stream<Pair<TraceList,TraceList>> stream,Extractor configuration,int threhold){
+	public static double test(Stream<Pair<TraceList,TraceList>> stream,int threhold){
 		int exprCount=0, actualTraceCount=0, resultTraceCount=0, matchTraceCount=0, exact=0;
 		long start=System.currentTimeMillis();
 		for(Iterator<Pair<TraceList,TraceList>> iterator=stream.iterator();iterator.hasNext();){
-			System.err.println(++exprCount);
-//			++exprCount;
+//			System.err.println(++exprCount);
+			++exprCount;
 			Pair<TraceList,TraceList> pair=iterator.next();
 			TraceList list0=pair.getKey();
 			TraceList list1=pair.getValue();
@@ -255,6 +258,7 @@ public class TracerTests{
 		System.out.format("Recall:%f%n",matchTraceCount*1.0/actualTraceCount);
 		System.out.format("Precision:%f%n",matchTraceCount*1.0/resultTraceCount);
 		System.out.format("TIME:%dms%n",System.currentTimeMillis()-start);
+		return exact*1.0/exprCount;
 	}
 	//private static final int THREHOLD=TraceListViewer.THICK*TraceListViewer.THICK*2*2*4;
 	static final int THREHOLD=2*2*4*4;
@@ -264,7 +268,7 @@ public class TracerTests{
 			int distance=Integer.MAX_VALUE;
 			Trace match=null;
 			for(Trace trace1:list1.getTraces()){
-				int d=getDistance(trace0,trace1);
+				int d=TraceList.getDistance(trace0,trace1);
 				if(d<distance){
 					distance=d;
 					match=trace1;
@@ -277,82 +281,7 @@ public class TracerTests{
 		}
 		return matched;
 	}
-	static int getDistance(Trace trace0,Trace trace1){
-		return Math.max(getSideDistance(trace0,trace1),getSideDistance(trace1,trace0));
-	}
-	private static int getSideDistance(Trace trace0,Trace trace1){
-		int distance=0;
-		for(TracePoint point0:trace0.getPoints()){
-			int d=Integer.MAX_VALUE;
-			for(TracePoint point1:trace1.getPoints()){
-				int tmp=TracePoint.getDistanceSquare(point0,point1);
-				if(tmp<d){
-					d=tmp;
-				}
-			}
-			Iterator<TracePoint> iterator=trace1.getPoints().iterator();
-			TracePoint last=iterator.next();
-			while(iterator.hasNext()){
-				TracePoint next=iterator.next();
-				int dy0=next.getY()-last.getY();
-				int dx0=next.getX()-last.getX();
-				if(dx0==0&&dy0==0){
-					continue;
-				}
-				int dy=point0.getY()-last.getY();
-				int dx=point0.getX()-last.getX();
-				int dd=dx0*dx0+dy0*dy0;
-				int t=(dx*dx0+dy*dy0)*10000/dd;
-				if(t>0&&t<10000){
-					int s=(dx*dy0-dy*dx0);
-					s*=s;
-					s/=dd;
-					if(s<d){
-						d=s;
-					}
-				}
-				last=next;
-			}
-			if(d>distance){
-				distance=d;
-			}
-		}
-		return distance;
-	}
 	static final BoundBox IMAGE_BOX=new BoundBox(5,1004,5,1004);
-	static TraceList rescale(TraceList from,BoundBox toBox){
-		BoundBox fromBox=from.getBoundBox();
-		TraceList rescaled=new TraceList(new ArrayList<>(from.getTraces().size()));
-		int scaleTo, scaleFrom, dx, dy;
-		if(fromBox.getWidth()*toBox.getHeight()>=toBox.getWidth()*fromBox.getHeight()){
-			scaleFrom=fromBox.getWidth();
-			scaleTo=toBox.getWidth();
-			dx=toBox.getLeft();
-			dy=toBox.getTop()+toBox.getHeight()/2-fromBox.getHeight()*scaleTo/(2*scaleFrom);
-		}else{
-			scaleFrom=fromBox.getHeight();
-			scaleTo=toBox.getHeight();
-			dx=toBox.getLeft()+toBox.getWidth()/2-fromBox.getWidth()*scaleTo/(2*scaleFrom);
-			dy=toBox.getTop();
-		}
-		for(Trace trace:from.getTraces()){
-			rescaled.getTraces().add(new Trace(trace.getPoints().stream().
-					map((point)->new TracePoint(
-					(point.getX()-fromBox.getLeft())*scaleTo/scaleFrom+dx,
-					(point.getY()-fromBox.getTop())*scaleTo/scaleFrom+dy)).
-					collect(Collectors.toList())));
-		}
-		return rescaled;
-	}
-	static TraceList transform(TraceList from,int dx,int dy){
-		TraceList rescaled=new TraceList(new ArrayList<>(from.getTraces().size()));
-		for(Trace trace:from.getTraces()){
-			rescaled.getTraces().add(new Trace(trace.getPoints().stream().
-					map((point)->new TracePoint(point.getX()+dx,point.getY()+dy)).
-					collect(Collectors.toList())));
-		}
-		return rescaled;
-	}
 	/**
 	 * Store ground truth strokes
 	 *
@@ -425,86 +354,46 @@ public class TracerTests{
 	 * @throws IOException
 	 */
 	public static void exportTrace(TraceList extracted,File strokeFile) throws IOException{
-		try(Writer out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(strokeFile),StandardCharsets.UTF_8))){
-			exportTrace(extracted,out);
-		}
-	}
-	/**
-	 * Save trace list into a writer
-	 *
-	 * @param extracted the trace list
-	 * @param out the writer
-	 * @throws IOException
-	 */
-	public static void exportTrace(TraceList extracted,Writer out) throws IOException{
-		out.write('[');
-		boolean outComma=false;
-		for(Trace trace:extracted.getTraces()){
-			if(outComma){
-				out.write(',');
-			}else{
-				outComma=true;
-			}
-			out.write('[');
-			boolean inComma=false;
-			for(TracePoint point:trace.getPoints()){
-				if(inComma){
-					out.write(',');
-				}else{
-					inComma=true;
-				}
-				out.write(Integer.toString(point.getX()));
-				out.write(',');
-				out.write(Integer.toString(point.getY()));
-			}
-			out.write(']');
-		}
-		out.write(']');
-	}
-	public static TraceList importTrace(File file) throws IOException{
-		TraceList list;
-		try(JsonParser parser=new JsonFactory().createParser(file)){
-			list=new TraceList();
-			parser.nextToken();
-			while(parser.nextToken().isStructStart()){
-				Trace trace=new Trace();
-				JsonToken token=parser.nextToken();
-				while(token.isNumeric()){
-					int x=parser.getValueAsInt();
-					parser.nextToken();
-					int y=parser.getValueAsInt();
-					trace.getPoints().add(new TracePoint(x,y));
-					token=parser.nextToken();
-				}
-				list.getTraces().add(trace);
-			}
-		}
-		return list;
+		new JsonFormat().write(extracted,strokeFile);
 	}
 	public static void main(String[] args) throws Exception{
 //		testByRender(Crohme.getValidationStream2016().map((ink)->ink.getTraceList()),Extractor.DEFAULT);
 //		testByRender(Crohme.getTestStream2016().map((ink)->ink.getTraceList()),Extractor.DEFAULT);
 //		testImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid/TestEM2014GT_INKMLs"),
-//				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs_1000"),
-//				Extractor.DEFAULT,1.5);
-		testImage(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
-				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
-				Extractor.DEFAULT,1.5);
-//		for(int i=200;i<203;i+=1){
+//				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
+//				Extractor.DEFAULT,1.0);
+//		testImage(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
+//				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
+//				Extractor.DEFAULT,1.0);
+//		testImage(new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Inkmls_Test2019"),
+//				new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Images_Test2019"),
+//				Extractor.DEFAULT,1.0);
+//		int bestI=-1;
+//		double bestK=0;
+//		double bestAcc=0;
+//		for(int i=21;i<22;i+=2){
+//			for(double k=0.35;k<0.45;k+=0.01){
 ////			if(i%8==0){
 ////				continue;
 ////			}
-//			System.out.println(i);
-//			Extractor extractor=new Extractor(
-//					new CombinedPreprocessor(Arrays.asList(new ToGrayscale(),new FixedBinarizer(i))),
-//					new ThinTracer(),new GreedyGraphTracer(),new CutOrderer(),new MyscriptRecognizer());
-////			testImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid/TestEM2014GT_INKMLs"),
-////					new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs_1000"),
-////					extractor,1.5);
-//			testImage(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
-//					new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
-//					extractor,1.5);
+//				System.out.println(i+","+k);
+//				Extractor extractor=new Extractor(
+//						new CombinedPreprocessor(Arrays.asList(new ToGrayscale(),new LocalBinarizer(LocalBinarizer.getSauvola(k),i))),
+//						new ThinTracer(),new GreedyGraphTracer(),new CutOrderer(),new MyscriptRecognizer());
+//				double tmp=testImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid/TestEM2014GT_INKMLs"),
+//						new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
+//						extractor,1.0);
+//				if(tmp>bestAcc){
+//					bestAcc=tmp;
+//					bestI=i;
+//					bestK=k;
+//				}
+////			testImage(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
+////					new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
+////					extractor,1.0);
+//			}
 //		}
+//		System.out.println(bestAcc+" : "+bestI+" , "+bestK);
 //		testJiix(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
 //				new File(Crohme.DIRECTORY_RESULT+"/2016/result_jiix"),
 //				Extractor.DEFAULT);
@@ -515,25 +404,27 @@ public class TracerTests{
 //				new File(Crohme.DIRECTORY_RESULT+"/test2014/result_stroke"),
 //				Extractor.DEFAULT,1.5);
 //		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs_1000"),
-//				new File(Crohme.DIRECTORY_RESULT+"/img2014/result_stroke"),
-//				Extractor.DEFAULT);
+//				new File(Crohme.DIRECTORY_RESULT+"/otsu2014/result_stroke"),
+//				Extractor.DEFAULT,1.5);
 //		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
-//				new File(Crohme.DIRECTORY_RESULT+"/img2016/result_stroke"),
-//				Extractor.DEFAULT);
+//				new File(Crohme.DIRECTORY_RESULT+"/otsu2016/result_stroke"),
+//				Extractor.DEFAULT,1.0);
+////		Export online data
+//		exportTrace(new File(DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/Test"),
+//				new File(Crohme.DIRECTORY_RESULT+"/raw2019/result_stroke"));
 //		exportTrace(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
 //				new File(Crohme.DIRECTORY_RESULT+"/raw2016/result_stroke"));
-//		exportTrace(new File(Crohme.DIRECTORY_2016+"/CROHME2014_data/TestEM2014GT"),
+//		exportTrace(new File(DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid/TestEM2014GT_INKMLs"),
 //				new File(Crohme.DIRECTORY_RESULT+"/raw2014/result_stroke"));
-//		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs_1000"),
-//				new File(Crohme.DIRECTORY_RESULT+"/test2014/result_stroke"),
-//				Extractor.DEFAULT,1.5);
-//		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
-//				new File(Crohme.DIRECTORY_RESULT+"/test2016/result_stroke"),
-//				Extractor.DEFAULT,1.5);
-//		exportTrace(new File(Crohme.DIRECTORY_2019+"/../Task1_onlineRec/MainTask_formula/TestSet2019"),
-//				new File(Crohme.DIRECTORY_RESULT+"/2019on/result_stroke"));
-//		exportTrace(new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Images_Test2019"),
-//				new File(Crohme.DIRECTORY_RESULT+"/off2019/result_stroke"),
-//				Extractor.DEFAULT,1.5);
+////		Export offline data
+		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
+				new File(Crohme.DIRECTORY_RESULT+"/offline2014/result_stroke"),
+				Extractor.DEFAULT);
+		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
+				new File(Crohme.DIRECTORY_RESULT+"/offline2016/result_stroke"),
+				Extractor.DEFAULT);
+		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/Test/Images_Test2019"),
+				new File(Crohme.DIRECTORY_RESULT+"/offline2019/result_stroke"),
+				Extractor.DEFAULT);
 	}
 }

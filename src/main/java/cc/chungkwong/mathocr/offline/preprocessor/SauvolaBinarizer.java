@@ -16,21 +16,21 @@
  */
 package cc.chungkwong.mathocr.offline.preprocessor;
 import cc.chungkwong.mathocr.*;
-import java.awt.color.*;
 /**
  * Sauvola's threholding
  *
  * @author Chan Chung Kwong
  */
 public class SauvolaBinarizer extends SimplePreprocessor{
-	private final double weight;
-	private final int window;
+	private final double k, k2;
+	private final int windowWidth;
+	private final int windowHeight;
 	/**
 	 * Create an binarizer using global settings
 	 */
 	public SauvolaBinarizer(){
-		this.weight=Settings.DEFAULT.getDouble("SAUVOLA_WEIGHT");
-		this.window=Settings.DEFAULT.getInteger("SAUVOLA_WINDOW");
+		this(Settings.DEFAULT.getDouble("SAUVOLA_WEIGHT"),
+				Settings.DEFAULT.getInteger("SAUVOLA_WINDOW"));
 	}
 	/**
 	 * Create an binarizer
@@ -39,104 +39,150 @@ public class SauvolaBinarizer extends SimplePreprocessor{
 	 * @param window side of the sliding windows
 	 */
 	public SauvolaBinarizer(double weight,int window){
-		this.weight=weight;
-		this.window=window;
+		this.windowWidth=window;
+		this.windowHeight=window;
+		if(weight<0){
+			throw new java.lang.IllegalArgumentException("Weight should be positive");
+		}
+		this.k=weight;
+		this.k2=weight*weight/128/128;
 	}
 	/**
 	 *
 	 * @return Weight
 	 */
 	public double getWeight(){
-		return weight;
+		return k;
 	}
 	/**
 	 *
 	 * @return side of sliding windows
 	 */
 	public int getWindow(){
-		return window;
+		return windowWidth;
 	}
 	@Override
 	public void preprocess(byte[] from,byte[] to,int width,int height){
-		//byte[] pixels=((DataBufferByte)image.getRaster().getDataBuffer()).getData();
-		for(int i=0;i<to.length;i++){
-			to[i]=COLOR[from[i]&0xFF];
+		if(from==to){
+			preprocessSafe(to,width,height);
+		}else{
+			preprocessUnsafe(from,to,width,height);
 		}
+	}
+	private void preprocessSafe(byte[] to,int width,int height){
 		int[] integral=new int[width+1];
 		int[] integralSquare=new int[width+1];
-		int dl=(window+1)/2, dr=window/2;
-		int[][] old=new int[dl][width+1];
-		for(int i=0, ind=0, imax=Math.min(height,dr+1);i<imax;i++){
+		int l=(windowWidth+1)/2, r=windowWidth/2;
+		int o=(windowHeight+1)/2, u=windowHeight/2;
+		for(int i=0, ind=0, imax=Math.min(height,u);i<imax;i++){
 			for(int j=1;j<=width;j++,ind++){
 				int pixel=(to[ind])&0xFF;
 				integral[j]+=pixel;
 				integralSquare[j]+=pixel*pixel;
 			}
 		}
-		int dr1=Math.min(dr,width);
-		int dr2=Math.max(width-dr+1,1);
-		for(int i=0, ind=0, curr=0;i<height;i++){
-			int winTop=Math.max(i-dl,-1), winBottom=Math.min(height-1,i+dr);
+		int dr1=Math.min(r,width);
+		int dr2=Math.max(width-r+1,1);
+		byte[][] old=new byte[o][width+1];
+		for(int i=0, ind=0, curr=-1;i<height;i++){
+			int winTop=Math.max(i-o,-1), winBottom=Math.min(height-1,i+u);
+			if(++curr==o){
+				curr=0;
+			}
+			if(i>=o){
+				for(int j=1;j<=width;j++){
+					int pixel=old[curr][j]&0xFF;
+					integral[j]-=pixel;
+					integralSquare[j]-=pixel*pixel;
+				}
+			}
+			if(i+u<height){
+				for(int j=1, index=winBottom*width;j<=width;j++,index++){
+					int pixel=(to[index])&0xFF;
+					integral[j]+=pixel;
+					integralSquare[j]+=pixel*pixel;
+				}
+			}
 			int sum=0;
 			int squareSum=0;
 			for(int j=1;j<=dr1;j++){
 				sum+=integral[j];
 				squareSum+=integralSquare[j];
 			}
-			for(int j=1;j<=width-dr;j++,ind++){
-				int winLeft=Math.max(j-dl,0), winRight=j+dr;
+			for(int j=1;j<=width-r;j++,ind++){
+				int winLeft=Math.max(j-l,0), winRight=j+r;
+				int count=(winBottom-winTop)*(winRight-winLeft);
 				sum+=integral[winRight]-integral[winLeft];
 				squareSum+=integralSquare[winRight]-integralSquare[winLeft];
-				int pixel=to[ind]&0xFF;
-				old[curr][j]=pixel;
-				if(pixel!=0xFF&&pixel!=0x00){
-					int area=((winBottom-winTop)*(winRight-winLeft));
-					double factor=1.0/area;
-					double mean=sum*factor;
-					double s=Math.sqrt(squareSum*factor-mean*mean);
-					int lim=(int)(mean*(1+weight*(s/128-1)));
-					to[ind]=pixel<=lim?0x00:(byte)0xff;
-				}
+				old[curr][j]=to[ind];
+				to[ind]=isForeground(to[ind]&0xFF,sum,squareSum,count)?0x00:(byte)0xff;
 			}
 			for(int j=dr2;j<=width;j++,ind++){
-				int winLeft=Math.max(j-dl,0), winRight=width;
+				int winLeft=Math.max(j-l,0), winRight=width;
+				int count=(winBottom-winTop)*(winRight-winLeft);
 				sum-=integral[winLeft];
 				squareSum-=integralSquare[winLeft];
-				int pixel=to[ind]&0xFF;
-				old[curr][j]=pixel;
-				if(pixel!=0xFF&&pixel!=0x00){
-					int area=((winBottom-winTop)*(winRight-winLeft));
-					double factor=1.0/area;
-					double mean=sum*factor;
-					double s=Math.sqrt(squareSum*factor-mean*mean);
-					int lim=(int)(mean*(1+weight*(s/128-1)));
-					to[ind]=pixel<=lim?0x00:(byte)0xff;
-				}
+				old[curr][j]=to[ind];
+				to[ind]=isForeground(to[ind]&0xFF,sum,squareSum,count)?0x00:(byte)0xff;
 			}
-			if(++curr==dl){
-				curr=0;
+		}
+	}
+	private void preprocessUnsafe(byte[] from,byte[] to,int width,int height){
+		int[] integral=new int[width+1];
+		int[] integralSquare=new int[width+1];
+		int l=(windowWidth+1)/2, r=windowWidth/2;
+		int o=(windowHeight+1)/2, u=windowHeight/2;
+		for(int i=0, ind=0, imax=Math.min(height,u);i<imax;i++){
+			for(int j=1;j<=width;j++,ind++){
+				int pixel=(from[ind])&0xFF;
+				integral[j]+=pixel;
+				integralSquare[j]+=pixel*pixel;
 			}
-			if(i>=dl-1){
-				for(int j=1, index=(winTop+1)*width;j<=width;j++,index++){
-					int pixel=old[curr][j];
+		}
+		int dr1=Math.min(r,width);
+		int dr2=Math.max(width-r+1,1);
+		for(int i=0, ind=0;i<height;i++){
+			int winTop=Math.max(i-o,-1), winBottom=Math.min(height-1,i+u);
+			if(i>=l){
+				for(int j=1, index=winTop*width;j<=width;j++,index++){
+					int pixel=from[index]&0xFF;
 					integral[j]-=pixel;
 					integralSquare[j]-=pixel*pixel;
 				}
 			}
-			if(winBottom+1<height){
-				for(int j=1, index=(winBottom+1)*width;j<=width;j++,index++){
-					int pixel=(to[index])&0xFF;
+			if(i+r<height){
+				for(int j=1, index=winBottom*width;j<=width;j++,index++){
+					int pixel=(from[index])&0xFF;
 					integral[j]+=pixel;
 					integralSquare[j]+=pixel*pixel;
 				}
 			}
+			int sum=0;
+			int squareSum=0;
+			for(int j=1;j<=dr1;j++){
+				sum+=integral[j];
+				squareSum+=integralSquare[j];
+			}
+			for(int j=1;j<=width-r;j++,ind++){
+				int winLeft=Math.max(j-l,0), winRight=j+r;
+				int count=(winBottom-winTop)*(winRight-winLeft);
+				sum+=integral[winRight]-integral[winLeft];
+				squareSum+=integralSquare[winRight]-integralSquare[winLeft];
+				to[ind]=isForeground(from[ind]&0xFF,sum,squareSum,count)?0x00:(byte)0xff;
+			}
+			for(int j=dr2;j<=width;j++,ind++){
+				int winLeft=Math.max(j-l,0), winRight=width;
+				int count=(winBottom-winTop)*(winRight-winLeft);
+				sum-=integral[winLeft];
+				squareSum-=integralSquare[winLeft];
+				to[ind]=isForeground(from[ind]&0xFF,sum,squareSum,count)?0x00:(byte)0xff;
+			}
 		}
 	}
-	private static byte[] COLOR=new byte[256];
-	static{
-		ColorSpace space=ColorSpace.getInstance(ColorSpace.CS_GRAY);
-		for(int i=0;i<256;i++){
-			COLOR[i]=(byte)(space.toRGB((new float[]{i/255.0f}))[0]*255);
-		}
+	private boolean isForeground(int pixel,int sum,int squareSum,int count){
+		double mean=((double)sum)/count;
+		double variance=((double)squareSum)/count-mean*mean;
+		double tmp=(pixel+mean*(k-1));
+		return tmp<=0||tmp*tmp<=mean*mean*k2*variance;
 	}
 }

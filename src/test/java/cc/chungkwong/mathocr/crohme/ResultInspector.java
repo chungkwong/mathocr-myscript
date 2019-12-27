@@ -24,6 +24,14 @@ import java.util.*;
  * @author Chan Chung Kwong
  */
 public class ResultInspector{
+	/**
+	 * Generate o HTML page to visualize a set of recognition results
+	 *
+	 * @param images location of images to be recognized
+	 * @param mml location of recognition results
+	 * @param report location to store the HTML page
+	 * @throws IOException
+	 */
 	public static void inspect(File images,File mml,File report) throws IOException{
 		try(BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(report),StandardCharsets.UTF_8))){
 			Map<String,String> code=new TreeMap<>();
@@ -93,6 +101,13 @@ public class ResultInspector{
 					+"</html>\n");
 		}
 	}
+	/**
+	 * Generate o HTML page to visualize a set of recognition results
+	 *
+	 * @param mml location of recognition results
+	 * @param report location to store the HTML page
+	 * @throws IOException
+	 */
 	public static void inspectMml(File mml,File report) throws IOException{
 		try(BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(report),StandardCharsets.UTF_8))){
 			out.write("<!DOCTYPE html>\n"
@@ -116,6 +131,15 @@ public class ResultInspector{
 					+"</html>\n");
 		}
 	}
+	/**
+	 * Generate o HTML page to compare two set of recognition results
+	 *
+	 * @param images location of image to be recognized
+	 * @param as location of a set of recognition result
+	 * @param bs location of another set of recognition result
+	 * @param report location to store the report
+	 * @throws IOException
+	 */
 	public static void diff(File images,File as,File bs,File report) throws IOException{
 		try(BufferedWriter out=new BufferedWriter(new OutputStreamWriter(new FileOutputStream(report),StandardCharsets.UTF_8))){
 			out.write("<!DOCTYPE html>\n"

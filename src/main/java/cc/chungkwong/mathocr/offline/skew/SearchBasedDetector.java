@@ -40,7 +40,7 @@ public abstract class SearchBasedDetector implements SkewDetector{
 	@Override
 	public double detect(BufferedImage image){
 		int width=image.getWidth(), height=image.getHeight();
-		int[] pixels=image.getRGB(0,0,width,height,null,0,width);
+		byte[] pixels=((DataBufferByte)image.getRaster().getDataBuffer()).getData();
 		return strategy.search((angle)->getCost(pixels,width,height,angle));
 	}
 	/**
@@ -52,5 +52,5 @@ public abstract class SearchBasedDetector implements SkewDetector{
 	 * @param theta angle
 	 * @return the cost
 	 */
-	protected abstract double getCost(int[] pixels,int width,int height,double theta);
+	protected abstract double getCost(byte[] pixels,int width,int height,double theta);
 }

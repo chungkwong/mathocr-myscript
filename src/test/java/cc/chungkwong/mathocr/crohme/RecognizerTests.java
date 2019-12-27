@@ -112,7 +112,7 @@ public class RecognizerTests{
 	 * @throws SAXException
 	 */
 	public static void recognize(Stream<Pair<BufferedImage,File>> input,File directory,Extractor configuration) throws IOException,InterruptedException,ParserConfigurationException,SAXException{
-		Format jiix=new JiixFormat();
+		ExpressionFormat jiix=new JiixFormat();
 		File inkDirectory=new File(directory,"result_inkml");
 		inkDirectory.mkdirs();
 		File jiixDirectory=new File(directory,"result_jiix");

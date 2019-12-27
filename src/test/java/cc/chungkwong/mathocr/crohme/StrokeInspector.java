@@ -15,15 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.crohme;
+import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.offline.*;
-import cc.chungkwong.mathocr.offline.extractor.tracer.Junction;
-import cc.chungkwong.mathocr.offline.extractor.tracer.Graph;
-import cc.chungkwong.mathocr.offline.extractor.tracer.Segment;
-import cc.chungkwong.mathocr.offline.extractor.tracer.ThinTracer;
-import cc.chungkwong.mathocr.offline.extractor.orderer.CutOrderer;
-import cc.chungkwong.mathocr.offline.preprocessor.Thinning;
-import cc.chungkwong.mathocr.online.TraceList;
-import cc.chungkwong.mathocr.offline.extractor.Extractor;
+import cc.chungkwong.mathocr.offline.extractor.*;
+import cc.chungkwong.mathocr.offline.extractor.orderer.*;
+import cc.chungkwong.mathocr.offline.extractor.tracer.*;
+import cc.chungkwong.mathocr.offline.preprocessor.*;
+import cc.chungkwong.mathocr.online.*;
 import cc.chungkwong.mathocr.ui.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -34,6 +32,8 @@ import java.util.logging.*;
 import java.util.stream.*;
 import javax.imageio.*;
 import javax.swing.*;
+import javax.xml.parsers.*;
+import org.xml.sax.*;
 /**
  * Tool to visualize stroke extraction
  *
@@ -47,7 +47,7 @@ public class StrokeInspector extends JSplitPane implements ActionListener{
 	private final TraceListViewer traceViewer=new TraceListViewer();
 	private final JTextArea result=new JTextArea();
 	private final JCheckBox details=new JCheckBox("Details",false);
-	private Ink ink;
+	private cc.chungkwong.mathocr.common.format.Ink ink;
 	/**
 	 * Create a interactive inspector
 	 */
@@ -76,13 +76,17 @@ public class StrokeInspector extends JSplitPane implements ActionListener{
 		try{
 			BufferedImage image;
 			if(fileChooser.getSelectedFile().getName().endsWith(".inkml")){
-				ink=new Ink(fileChooser.getSelectedFile());
+				ink=new cc.chungkwong.mathocr.common.format.Ink(fileChooser.getSelectedFile());
 				preview.setTraceList(ink.getTraceList(),ink.getAnnotions());
 				image=TraceListViewer.renderImage(ink.getTraceList());
 				result.setText(ink.getMeta().entrySet().stream().map((attr)->attr.getKey()+"\t"+attr.getValue()).collect(Collectors.joining("\n")));
 			}else if(fileChooser.getSelectedFile().getName().endsWith(".json")){
-				preview.setTraceList(TracerTests.importTrace(fileChooser.getSelectedFile()),Collections.emptyList());
+				preview.setTraceList(new JsonFormat().read(fileChooser.getSelectedFile()),Collections.emptyList());
 				image=TraceListViewer.renderImage(preview.getTraceList());
+			}else if(fileChooser.getSelectedFile().getName().endsWith(".ascii")){
+				TraceList traceList=new AsciiFormat().read(fileChooser.getSelectedFile());
+				preview.setTraceList(traceList,Collections.emptyList());
+				image=TraceListViewer.renderImage(traceList);
 			}else{
 				image=ImageIO.read(fileChooser.getSelectedFile());
 				image=Extractor.DEFAULT.getPreprocessor().apply(image,true);
@@ -101,7 +105,7 @@ public class StrokeInspector extends JSplitPane implements ActionListener{
 			TraceList traceList=Extractor.DEFAULT.getGraphTracer().trace(graph);
 			traceList=new CutOrderer().order(traceList);
 			traceViewer.setTraceList(traceList,Collections.emptyList());
-		}catch(Exception ex){
+		}catch(IOException|ParserConfigurationException|SAXException ex){
 			Logger.getLogger(StrokeInspector.class.getName()).log(Level.SEVERE,null,ex);
 		}
 	}

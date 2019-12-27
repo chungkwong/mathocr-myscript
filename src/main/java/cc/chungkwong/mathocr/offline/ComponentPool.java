@@ -41,7 +41,9 @@ public class ComponentPool{
 	 */
 	public ComponentPool(java.awt.image.BufferedImage image){
 		int width=image.getWidth(), height=image.getHeight();
-		connectedComponentAnalysis(((DataBufferByte)image.getRaster().getDataBuffer()).getData(),width,height);
+		byte[] pixels=new byte[height*width];
+		WritableRaster raster=WritableRaster.createBandedRaster(DataBuffer.TYPE_BYTE,width,height,1,null);
+		connectedComponentAnalysis(((DataBufferByte)image.copyData(raster).getDataBuffer()).getData(),width,height);
 	}
 	/**
 	 * Perform connected component analysis
@@ -59,9 +61,6 @@ public class ComponentPool{
 		});
 		int[] last=new int[width];
 		int lastlt=-1;
-		for(int i=0;i<pixels.length;i++){
-			pixels[i]&=0x1;
-		}
 		for(int j=0;j<width;j++){
 			last[j]=-1;
 		}

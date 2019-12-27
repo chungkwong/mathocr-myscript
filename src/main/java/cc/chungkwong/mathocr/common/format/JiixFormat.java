@@ -27,7 +27,7 @@ import java.util.stream.*;
  *
  * @author Chan Chung Kwong
  */
-public class JiixFormat implements Format{
+public class JiixFormat implements ExpressionFormat{
 	private final ObjectMapper mapper=new ObjectMapper();
 	private final JsonFactory factory=new JsonFactory();
 	public JiixFormat(){

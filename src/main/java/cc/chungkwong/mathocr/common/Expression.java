@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.common;
+import cc.chungkwong.mathocr.online.*;
 import java.util.*;
 /**
  * Mathematical expression
@@ -51,18 +52,34 @@ public class Expression{
 	}
 	public static class Symbol extends Expression{
 		private final String name;
+		private final List<Trace> primitives;
 		public Symbol(String name){
 			this.name=name;
+			this.primitives=null;
+		}
+		public Symbol(String name,List<Trace> primitives){
+			this.name=name;
+			this.primitives=primitives;
 		}
 		public String getName(){
 			return name;
 		}
+		public Object getPrimitives(){
+			return primitives;
+		}
 	}
 	public static class Fraction extends Expression{
 		private final Expression numerator, denominator;
+		private final List<Trace> primitives;
 		public Fraction(Expression numerator,Expression denominator){
 			this.numerator=numerator;
 			this.denominator=denominator;
+			this.primitives=null;
+		}
+		public Fraction(Expression numerator,Expression denominator,List<Trace> primitives){
+			this.numerator=numerator;
+			this.denominator=denominator;
+			this.primitives=primitives;
 		}
 		public Expression getNumerator(){
 			return numerator;
@@ -70,18 +87,31 @@ public class Expression{
 		public Expression getDenominator(){
 			return denominator;
 		}
+		public Object getPrimitives(){
+			return primitives;
+		}
 	}
 	public static class Radical extends Expression{
 		private final Expression power, radicand;
+		private final List<Trace> primitives;
 		public Radical(Expression power,Expression radicand){
 			this.power=power;
 			this.radicand=radicand;
+			this.primitives=null;
+		}
+		public Radical(Expression power,Expression radicand,List<Trace> primitives){
+			this.power=power;
+			this.radicand=radicand;
+			this.primitives=primitives;
 		}
 		public Expression getPower(){
 			return power;
 		}
 		public Expression getRadicand(){
 			return radicand;
+		}
+		public Object getPrimitives(){
+			return primitives;
 		}
 	}
 	public static class Subscript extends Expression{

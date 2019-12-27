@@ -19,9 +19,8 @@ package cc.chungkwong.mathocr.offline.preprocessor;
  *
  * @author Chan Chung Kwong
  */
-public class OtsuBinarizer extends FixedBinarizer{
+public class OtsuBinarizer extends GlobalBinarizer{
 	public OtsuBinarizer(){
-		super(127);
 	}
 	/**
 	 * Get the threhold value

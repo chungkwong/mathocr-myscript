@@ -27,6 +27,8 @@ import java.util.stream.*;
 public class GreedyGraphTracer implements GraphTracer{
 	@Override
 	public TraceList trace(Graph<Junction,Segment> graph){
+		double thick=graph.getEdges().stream().mapToInt((s)->s.getThick()).average().orElse(Double.MAX_VALUE);
+//		System.out.println(thick);
 		List<Trace> traces=new ArrayList<>();
 		traceDot(graph,traces);
 		for(Iterator<Graph<Junction,Segment>> iterator=graph.getComponents();iterator.hasNext();){
@@ -34,7 +36,7 @@ public class GreedyGraphTracer implements GraphTracer{
 			Graph<Junction,Segment> componentBackup=component.clone();
 			traceThrough(component);
 			Map<Trace,Pair<Junction,Junction>> pretrace=traceBend(component);
-			fixDouble(pretrace,componentBackup);
+			fixDouble(pretrace,componentBackup,thick);
 			List<Trace> list=pretrace.keySet().stream().sorted(Comparator.comparingInt((t)->t.getPoints().size())).collect(Collectors.toList());
 			if(list.size()>=2&&list.get(0).getPoints().size()<=list.get(1).getPoints().size()/16){
 				traces.addAll(list.subList(1,list.size()));
@@ -58,7 +60,6 @@ public class GreedyGraphTracer implements GraphTracer{
 			}
 		}
 	}
-	private static final double ANGLE_THREHOLD=Math.PI/6;
 	private static void traceThrough(Graph<Junction,Segment> graph){
 		class Ray{
 			private final Segment segment;
@@ -193,7 +194,7 @@ public class GreedyGraphTracer implements GraphTracer{
 		}
 		return traceEnds;
 	}
-	private static void fixDouble(Map<Trace,Pair<Junction,Junction>> traceEnds,Graph<Junction,Segment> graph){
+	private static void fixDouble(Map<Trace,Pair<Junction,Junction>> traceEnds,Graph<Junction,Segment> graph,double thick){
 		Map<Junction,Integer> degree=graph.getVertexs().stream().collect(Collectors.toMap((vertex)->vertex,
 				(vertex)->graph.getEdges(vertex).stream().mapToInt((e)->graph.getStart(e)==graph.getEnd(e)?2:1).sum()));
 		Map<Junction,Trace> jt=new HashMap<>();
@@ -221,7 +222,7 @@ public class GreedyGraphTracer implements GraphTracer{
 			Trace startTrace=jt.get(start);
 			Trace endTrace=jt.get(end);
 			if(startTrace!=null&&endTrace!=null&&startTrace!=endTrace){
-				turning.put(edge,getTurning(startTrace,edge,endTrace,traceEnds,graph));
+				turning.put(edge,getTurning(startTrace,edge,endTrace,traceEnds,graph,thick));
 				return true;
 			}else{
 				return false;
@@ -240,8 +241,8 @@ public class GreedyGraphTracer implements GraphTracer{
 			boolean endForward=traceEnds.get(endTrace).getKey()==end;
 			Junction traceStart=startForward?traceEnds.get(startTrace).getKey():traceEnds.get(startTrace).getValue();
 			Junction traceEnd=endForward?traceEnds.get(endTrace).getValue():traceEnds.get(endTrace).getKey();
-			if(isRightAngle(startTrace,startForward,edge.getTrace(),true)
-					||isRightAngle(edge.getTrace(),true,endTrace,endForward)){
+			if(isRightAngle(startTrace,startForward,edge.getTrace(),true,thick)
+					||isRightAngle(edge.getTrace(),true,endTrace,endForward,thick)){
 				continue;
 			}
 			if(isLine(startTrace)&&isLine(endTrace)&&isLine(edge.getTrace())){
@@ -270,18 +271,18 @@ public class GreedyGraphTracer implements GraphTracer{
 			}
 		}
 	}
-	private static double getTurning(Trace from,Segment bridge,Trace to,Map<Trace,Pair<Junction,Junction>> traceEnds,Graph<Junction,Segment> graph){
+	private static double getTurning(Trace from,Segment bridge,Trace to,Map<Trace,Pair<Junction,Junction>> traceEnds,Graph<Junction,Segment> graph,double thick){
 		double angle0=graph.getStart(bridge)==traceEnds.get(from).getValue()
-				?Segment.estimateEndAngle(from):Segment.estimateStartAngle(from)+Math.PI;
+				?Segment.estimateEndAngle(from,thick):Segment.estimateStartAngle(from,thick)+Math.PI;
 		double angle1=bridge.getAngleBegin();
 		double angle2=bridge.getAngleEnd();
 		double angle3=graph.getEnd(bridge)==traceEnds.get(to).getKey()
-				?Segment.estimateStartAngle(to):Segment.estimateEndAngle(to)+Math.PI;
+				?Segment.estimateStartAngle(to,thick):Segment.estimateEndAngle(to,thick)+Math.PI;
 		return Math.abs(normalize(angle1-angle0))+Math.abs(normalize(angle3-angle2));
 	}
-	private static boolean isRightAngle(Trace start,boolean startForward,Trace end,boolean endForward){
-		double startAngle=startForward?Segment.estimateEndAngle(start):Segment.estimateStartAngle(start)+Math.PI;
-		double endAngle=endForward?Segment.estimateStartAngle(end):Segment.estimateEndAngle(end)+Math.PI;
+	private static boolean isRightAngle(Trace start,boolean startForward,Trace end,boolean endForward,double thick){
+		double startAngle=startForward?Segment.estimateEndAngle(start,thick):Segment.estimateStartAngle(start,thick)+Math.PI;
+		double endAngle=endForward?Segment.estimateStartAngle(end,thick):Segment.estimateEndAngle(end,thick)+Math.PI;
 		return Math.abs(Math.abs(normalize(endAngle-startAngle))-Math.PI/2)<Math.PI/8;
 	}
 	private static boolean isLine(Trace trace){

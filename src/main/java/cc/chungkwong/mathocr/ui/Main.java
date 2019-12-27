@@ -16,6 +16,7 @@
  */
 package cc.chungkwong.mathocr.ui;
 import cc.chungkwong.mathocr.*;
+import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.offline.extractor.*;
 import cc.chungkwong.mathocr.online.*;
 import java.awt.*;
@@ -28,8 +29,9 @@ import java.util.logging.*;
 import java.util.prefs.*;
 import java.util.stream.*;
 import javax.imageio.*;
-import javax.swing.*;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.*;
+import javax.swing.filechooser.*;
 /**
  *
  * @author Chan Chung Kwong
@@ -84,12 +86,16 @@ public class Main extends JFrame{
 	}
 	private void addImageFileTab(){
 		JFileChooser fileChooser=new JFileChooser();
+		fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("Image",ImageIO.getReaderFileSuffixes()));
+		fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("JSON","json"));
+		fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("InkML","inkml"));
+		fileChooser.addChoosableFileFilter(new FileNameExtensionFilter("TAP ASCII","ascii"));
 		RecognitionPane result=new RecognitionPane();
 		fileChooser.addActionListener((e)->{
 			File selected=fileChooser.getSelectedFile();
 			if(selected!=null){
 				try{
-					result.setTraceList(Extractor.DEFAULT.extract(ImageIO.read(selected)));
+					result.setTraceList(TraceListFormat.readFrom(selected));
 				}catch(IOException ex){
 					Logger.getLogger(Main.class.getName()).log(Level.SEVERE,null,ex);
 				}

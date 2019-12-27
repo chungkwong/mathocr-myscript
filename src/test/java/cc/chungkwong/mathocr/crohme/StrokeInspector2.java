@@ -15,14 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.crohme;
+import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.offline.*;
-import cc.chungkwong.mathocr.offline.extractor.tracer.Junction;
-import cc.chungkwong.mathocr.offline.extractor.tracer.Graph;
-import cc.chungkwong.mathocr.offline.extractor.tracer.Segment;
-import cc.chungkwong.mathocr.offline.extractor.tracer.ThinTracer;
-import cc.chungkwong.mathocr.offline.extractor.orderer.CutOrderer;
-import cc.chungkwong.mathocr.online.TraceList;
-import cc.chungkwong.mathocr.offline.extractor.Extractor;
+import cc.chungkwong.mathocr.offline.extractor.*;
+import cc.chungkwong.mathocr.offline.extractor.orderer.*;
+import cc.chungkwong.mathocr.offline.extractor.tracer.*;
+import cc.chungkwong.mathocr.online.*;
 import cc.chungkwong.mathocr.ui.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -86,7 +84,7 @@ public class StrokeInspector2 extends JSplitPane implements ActionListener{
 			//System.out.println(graph);
 			TraceList extracted=Extractor.DEFAULT.getGraphTracer().trace(graph);
 			extracted=new CutOrderer().order(extracted);
-			traceViewer.setTraceList(TracerTests.rescale(extracted,ink.getTraceList().getBoundBox()),Collections.emptyList());
+			traceViewer.setTraceList(extracted.rescale(ink.getTraceList().getBoundBox()),Collections.emptyList());
 		}catch(Exception ex){
 			Logger.getLogger(StrokeInspector.class.getName()).log(Level.SEVERE,null,ex);
 		}
