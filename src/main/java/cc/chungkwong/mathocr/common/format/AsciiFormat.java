@@ -157,7 +157,9 @@ public class AsciiFormat implements TraceListFormat{
 			features[i][4]=features[i+2][0]-features[i][0];
 			features[i][5]=features[i+2][1]-features[i][1];
 		}
-		Files.write(file.toPath(),Arrays.stream(features).map((line)->Arrays.stream(line).mapToObj((n)->DECIMAL_FORMAT.format(n)).collect(Collectors.joining(" "))).collect(Collectors.toList()));
+		if(file!=null){
+			Files.write(file.toPath(),Arrays.stream(features).map((line)->Arrays.stream(line).mapToObj((n)->DECIMAL_FORMAT.format(n)).collect(Collectors.joining(" "))).collect(Collectors.toList()));
+		}
 	}
 	private static final DecimalFormat DECIMAL_FORMAT=new DecimalFormat("0.000000");
 }

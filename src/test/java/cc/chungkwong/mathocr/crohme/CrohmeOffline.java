@@ -20,6 +20,7 @@ import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.ui.*;
 import java.awt.image.*;
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.logging.*;
 import java.util.stream.*;
@@ -82,11 +83,11 @@ public class CrohmeOffline{
 	}
 	/**
 	 *
-	 * @return all expressions in the test set of CROHME 2016
+	 * @return all expressions in the test set of CROHME 2019
 	 */
 	public static Stream<Pair<Ink,BufferedImage>> getTestStream2019(){
 		return getStream(Crohme.getTestStream2019(),new File(Crohme.DIRECTORY_2019,
-				"../Task1_onlineRec/MainTask_formula/TestSet2019"));
+				"../Task1_onlineRec/MainTask_formula/imgdata_png_TestSet2019"));
 	}
 	private static Stream<Pair<Ink,BufferedImage>> getStream(Stream<Ink> inks,File... imageDirectory){
 		if(imageDirectory.length==0){
@@ -97,6 +98,83 @@ public class CrohmeOffline{
 			File imageFile=Arrays.stream(imageDirectory).map((dir)->new File(dir,name)).filter(File::exists).findFirst().get();
 			try{
 				return new Pair<>(ink,ImageIO.read(imageFile));
+			}catch(IOException ex){
+				Logger.getLogger(CrohmeOffline.class.getName()).log(Level.SEVERE,null,ex);
+				return null;
+			}
+		}).filter((p)->p!=null);
+	}
+	/**
+	 *
+	 * @return all expressions in CROHME
+	 */
+	public static Stream<BufferedImage> getFullStreamImage(){
+		return Stream.of(getValidationStream2016Image(),getTestStream2016Image(),getTestStream2019Image()).flatMap((s)->s);
+	}
+	/**
+	 *
+	 * @return all expressions in the train set of CROHME 2016/2014
+	 */
+	public static Stream<BufferedImage> getTrainStream2016Image(){
+		return getStream(new File(Crohme.DIRECTORY_2019,
+				"Task1_and_Task2/Task2_offlineRec/MainTask_formula/Train/IMGS/data_png_Train_2014"));
+	}
+	/**
+	 *
+	 * @return all expressions in the validation set of CROHME 2016/2019(Test
+	 * set of CROHME 2014)
+	 */
+	public static Stream<BufferedImage> getValidationStream2016Image(){
+		return getStream(new File(Crohme.DIRECTORY_2019,
+				"Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"));
+	}
+	/**
+	 *
+	 * @return all expressions in the validation set of CROHME 2014(Test set of
+	 * CROHME 2013)
+	 */
+	public static Stream<BufferedImage> getValidationStream2014Image(){
+		return getStream(new File(Crohme.DIRECTORY_2019,
+				"Task1_and_Task2/Task2_offlineRec/MainTask_formula/Train/IMGS/data_png_TestINKMLGT_2013"));
+	}
+	/**
+	 *
+	 * @return all expressions in the test set of CROHME 2016
+	 */
+	public static Stream<BufferedImage> getTestStream2016Image(){
+		return getStream(new File(Crohme.DIRECTORY_2019,
+				"Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"));
+	}
+	/**
+	 *
+	 * @return all expressions in the train set of CROHME 2019
+	 */
+	public static Stream<BufferedImage> getTrainStream2019Image(){
+		return getStream(new File(Crohme.DIRECTORY_2019,
+				"Task1_and_Task2/Task2_offlineRec/MainTask_formula/Train/IMGS/data_png_TestINKMLGT_2012"),new File(Crohme.DIRECTORY_2019,
+				"Task1_and_Task2/Task2_offlineRec/MainTask_formula/Train/IMGS/data_png_TestINKMLGT_2013"),new File(Crohme.DIRECTORY_2019,
+				"Task1_and_Task2/Task2_offlineRec/MainTask_formula/Train/IMGS/data_png_Train_2014"));
+	}
+	/**
+	 *
+	 * @return all expressions in the test set of CROHME 2019
+	 */
+	public static Stream<BufferedImage> getTestStream2019Image(){
+		return getStream(new File(Crohme.DIRECTORY_2019,
+				"../Task1_onlineRec/MainTask_formula/imgdata_png_TestSet2019"));
+	}
+	private static Stream<BufferedImage> getStream(File... imageDirectory){
+		Path[] paths=Arrays.stream(imageDirectory).flatMap((d)->{
+			try{
+				return Files.list(d.toPath());
+			}catch(IOException ex){
+				Logger.getLogger(OrdererTests.class.getName()).log(Level.SEVERE,null,ex);
+				return Stream.empty();
+			}
+		}).toArray(Path[]::new);
+		return Arrays.stream(paths).map((p)->{
+			try{
+				return ImageIO.read(p.toFile());
 			}catch(IOException ex){
 				Logger.getLogger(CrohmeOffline.class.getName()).log(Level.SEVERE,null,ex);
 				return null;

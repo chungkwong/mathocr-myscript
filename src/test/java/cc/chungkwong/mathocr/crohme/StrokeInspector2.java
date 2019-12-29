@@ -37,8 +37,7 @@ import javax.swing.*;
  * @author Chan Chung Kwong
  */
 public class StrokeInspector2 extends JSplitPane implements ActionListener{
-	private static final File IMAGES=new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/1500");
-//	private static final File IMAGES=new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Images_Test2019");
+	private static final File IMAGES=new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Images_Test2019");
 	private final JFileChooser fileChooser=new JFileChooser();
 	private final TraceListViewer preview=new TraceListViewer();
 	private final JLabel thinViewer=new JLabel();
