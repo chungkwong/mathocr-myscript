@@ -25,6 +25,7 @@ import java.awt.datatransfer.*;
 import java.awt.image.*;
 import java.io.*;
 import java.nio.charset.*;
+import java.nio.file.*;
 import java.util.*;
 import java.util.logging.*;
 import java.util.prefs.*;
@@ -286,29 +287,44 @@ public class Main extends JFrame{
 		if(args.length>=1){
 			int i=0;
 			String format="tex";
-			if(args[0].startsWith("-")){
-				format=args[0].substring(1).toLowerCase();
+			File directory=null;
+			if(i+1<args.length&&args[i].startsWith("-o")){
+				directory=new File(args[i+1]);
+				directory.mkdirs();
+				i+=2;
+			}
+			if(i<args.length&&args[i].startsWith("-")){
+				format=args[i].substring(1).toLowerCase();
 				++i;
 			}
+			PrintWriter stdout=new PrintWriter(System.out);
 			for(;i<args.length;i++){
 				File input=new File(args[i]);
 				System.err.println("Processing "+input);
 				try{
 					TraceList traceList=TraceListFormat.readFrom(input);
+					Writer out=directory!=null?Files.newBufferedWriter(new File(directory,input.getName().replaceFirst("[a-zZ-Z0-9]+$",format)).toPath(),StandardCharsets.UTF_8):stdout;
 					switch(format){
 						case "json":
-							new JsonFormat().write(traceList,new PrintWriter(System.out));
+							new JsonFormat().write(traceList,out);
 							break;
 						case "ascii":
-							new AsciiFormat().write(traceList,new PrintWriter(System.out));
+							new AsciiFormat().write(traceList,out);
 							break;
 						case "mathml":
-							System.out.println(new MyscriptRecognizer().recognize(traceList).getCodes(new MathmlFormat()));
+							out.write(new MyscriptRecognizer().recognize(traceList).getCodes(new MathmlFormat()));
+							out.write('\n');
+							out.flush();
 							break;
 						case "tex":
 						default:
-							System.out.println(new MyscriptRecognizer().recognize(traceList).getCodes(new LatexFormat()));
+							out.write(new MyscriptRecognizer().recognize(traceList).getCodes(new LatexFormat()));
+							out.write('\n');
+							out.flush();
 							break;
+					}
+					if(out!=stdout){
+						out.close();
 					}
 					processed=true;
 				}catch(IOException ex){
@@ -318,7 +334,7 @@ public class Main extends JFrame{
 		}
 		if(!processed){
 			System.err.println("Usage:");
-			System.err.println("    java -jar mathocr-myscript.jar [-format] image-file");
+			System.err.println("    java -jar mathocr-myscript.jar [-o outputDirectory] [-format] image-file...");
 			System.err.println("Format available: tex, mathml, json, ascii");
 		}
 		return processed;

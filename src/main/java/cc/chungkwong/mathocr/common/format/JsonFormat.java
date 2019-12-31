@@ -79,6 +79,5 @@ public class JsonFormat implements TraceListFormat{
 			out.write(']');
 		}
 		out.write(']');
-		out.flush();
 	}
 }

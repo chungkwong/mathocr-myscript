@@ -70,7 +70,6 @@ public class AsciiFormat implements TraceListFormat{
 		double[][] features=getFeature(simplify(traceList));
 		if(out!=null){
 			out.write(Arrays.stream(features).map((line)->Arrays.stream(line).mapToObj((n)->DECIMAL_FORMAT.format(n)).collect(Collectors.joining(" "))).collect(Collectors.joining("\n")));
-			out.flush();
 		}
 	}
 	private TraceList simplify(TraceList traceList){
