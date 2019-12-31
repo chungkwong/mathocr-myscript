@@ -14,14 +14,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package cc.chungkwong.mathocr.crohme;
+package cc.chungkwong.mathocr.ui;
 import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.offline.extractor.*;
 import java.awt.image.*;
 import java.io.*;
 import java.lang.management.*;
+import java.nio.file.*;
 import java.util.logging.*;
 import java.util.stream.*;
+import javax.imageio.*;
 /**
  *
  * @author Chan Chung Kwong
@@ -43,9 +45,14 @@ public class SpeedTest{
 		System.out.println("Wall time(ms): "+(System.currentTimeMillis()-wallTime));
 		System.out.println(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage());
 	}
-	public static void main(String[] args){
-		test(CrohmeOffline.getValidationStream2016Image());
-		test(CrohmeOffline.getTestStream2016Image());
-		test(CrohmeOffline.getTestStream2019Image());
+	public static void main(String[] args) throws IOException{
+		test(Files.list(new File(args[0]).toPath()).map((p)->{
+			try{
+				return ImageIO.read(p.toFile());
+			}catch(IOException ex){
+				Logger.getLogger(SpeedTest.class.getName()).log(Level.SEVERE,null,ex);
+				return null;
+			}
+		}));
 	}
 }

@@ -61,7 +61,17 @@ public class AsciiFormat implements TraceListFormat{
 	public static final int REFERENCE_SCALE=150;
 	@Override
 	public void write(TraceList traceList,File file) throws IOException{
-		encode(simplify(traceList),file);
+		double[][] features=getFeature(simplify(traceList));
+		if(file!=null){
+			Files.write(file.toPath(),Arrays.stream(features).map((line)->Arrays.stream(line).mapToObj((n)->DECIMAL_FORMAT.format(n)).collect(Collectors.joining(" "))).collect(Collectors.toList()));
+		}
+	}
+	public void write(TraceList traceList,Writer out) throws IOException{
+		double[][] features=getFeature(simplify(traceList));
+		if(out!=null){
+			out.write(Arrays.stream(features).map((line)->Arrays.stream(line).mapToObj((n)->DECIMAL_FORMAT.format(n)).collect(Collectors.joining(" "))).collect(Collectors.joining("\n")));
+			out.flush();
+		}
 	}
 	private TraceList simplify(TraceList traceList){
 		double distThreshold;
@@ -110,7 +120,7 @@ public class AsciiFormat implements TraceListFormat{
 	}
 	private static final double DEFAULT_COS_THRESHOLD_PRE=0.99;
 	private static final double DEFAULT_DIST_THRESHOLD_PRE=10;
-	public void encode(TraceList traceList,File file) throws IOException{
+	private double[][] getFeature(TraceList traceList) throws IOException{
 		double xSum=0, ySum=0, xxSum=0, xxCSum=0, length=0;
 		int count=0;
 		for(Trace trace:traceList.getTraces()){
@@ -157,9 +167,7 @@ public class AsciiFormat implements TraceListFormat{
 			features[i][4]=features[i+2][0]-features[i][0];
 			features[i][5]=features[i+2][1]-features[i][1];
 		}
-		if(file!=null){
-			Files.write(file.toPath(),Arrays.stream(features).map((line)->Arrays.stream(line).mapToObj((n)->DECIMAL_FORMAT.format(n)).collect(Collectors.joining(" "))).collect(Collectors.toList()));
-		}
+		return features;
 	}
 	private static final DecimalFormat DECIMAL_FORMAT=new DecimalFormat("0.000000");
 }

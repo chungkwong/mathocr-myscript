@@ -19,6 +19,7 @@ import cc.chungkwong.mathocr.*;
 import cc.chungkwong.mathocr.common.format.*;
 import cc.chungkwong.mathocr.offline.extractor.*;
 import cc.chungkwong.mathocr.online.*;
+import cc.chungkwong.mathocr.online.recognizer.*;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.image.*;
@@ -280,7 +281,51 @@ public class Main extends JFrame{
 		tabs.setTabComponentAt(index,header);
 		tabs.setSelectedIndex(index);
 	}
+	private static boolean batchProcess(String[] args){
+		boolean processed=false;
+		if(args.length>=1){
+			int i=0;
+			String format="tex";
+			if(args[0].startsWith("-")){
+				format=args[0].substring(1).toLowerCase();
+				++i;
+			}
+			for(;i<args.length;i++){
+				File input=new File(args[i]);
+				System.err.println("Processing "+input);
+				try{
+					TraceList traceList=TraceListFormat.readFrom(input);
+					switch(format){
+						case "json":
+							new JsonFormat().write(traceList,new PrintWriter(System.out));
+							break;
+						case "ascii":
+							new AsciiFormat().write(traceList,new PrintWriter(System.out));
+							break;
+						case "mathml":
+							System.out.println(new MyscriptRecognizer().recognize(traceList).getCodes(new MathmlFormat()));
+							break;
+						case "tex":
+						default:
+							System.out.println(new MyscriptRecognizer().recognize(traceList).getCodes(new LatexFormat()));
+							break;
+					}
+					processed=true;
+				}catch(IOException ex){
+					Logger.getLogger(Main.class.getName()).log(Level.SEVERE,null,ex);
+				}
+			}
+		}
+		if(!processed){
+			System.err.println("Usage:");
+			System.err.println("    java -jar mathocr-myscript.jar [-format] image-file");
+			System.err.println("Format available: tex, mathml, json, ascii");
+		}
+		return processed;
+	}
 	public static void main(String[] args) throws IOException{
-		new Main();
+		if(!batchProcess(args)){
+			new Main();
+		}
 	}
 }
