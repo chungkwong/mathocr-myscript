@@ -184,14 +184,11 @@ public class OrderedTracerTests{
 //		testByRender(Crohme.getValidationStream2016().map((ink)->ink.getTraceList()),Configuration.DEFAULT);
 //		testByRender(Crohme.getTestStream2016().map((ink)->ink.getTraceList()),Extractor.DEFAULT);
 		testImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid/TestEM2014GT_INKMLs"),
-				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
-				Extractor.DEFAULT);
+				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),Extractor.getDefault());
 		testImage(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
-				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
-				Extractor.DEFAULT);
+				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),Extractor.getDefault());
 		testImage(new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Inkmls_Test2019"),
-				new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Images_Test2019"),
-				Extractor.DEFAULT);
+				new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Images_Test2019"),Extractor.getDefault());
 //		testJiix(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
 //				new File(Crohme.DIRECTORY_RESULT+"/2016/result_jiix"),
 //				Configuration.DEFAULT);

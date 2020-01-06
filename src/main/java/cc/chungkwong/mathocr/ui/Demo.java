@@ -108,16 +108,16 @@ public class Demo extends JPanel{
 	}
 	private JComponent getSettingPanel(){
 		JPanel settings=new JPanel(new FlowLayout());
-		tracers=getServiceChooser(SkeletonTracer.class,Extractor.DEFAULT.getTracer());
+		tracers=getServiceChooser(SkeletonTracer.class,Extractor.getDefault().getTracer());
 		tracers.addActionListener((e)->refresh(true));
 		settings.add(tracers);
-		graphTracers=getServiceChooser(GraphTracer.class,Extractor.DEFAULT.getGraphTracer());
+		graphTracers=getServiceChooser(GraphTracer.class,Extractor.getDefault().getGraphTracer());
 		graphTracers.addActionListener((e)->refresh(true));
 		settings.add(graphTracers);
-		orderers=getServiceChooser(Orderer.class,Extractor.DEFAULT.getOrderer());
+		orderers=getServiceChooser(Orderer.class,Extractor.getDefault().getOrderer());
 		orderers.addActionListener((e)->refresh(true));
 		settings.add(orderers);
-		recognizers=getServiceChooser(OnlineRecognizer.class,Extractor.DEFAULT.getRecognizer());
+		recognizers=getServiceChooser(OnlineRecognizer.class,Extractor.getDefault().getRecognizer());
 		recognizers.addActionListener((e)->refresh(true));
 		settings.add(recognizers);
 		formats=getServiceChooser(ExpressionFormat.class,new LatexFormat());
@@ -156,7 +156,7 @@ public class Demo extends JPanel{
 		if(input instanceof File){
 			try{
 				BufferedImage image=ImageIO.read((File)input);
-				Graph<Junction,Segment> graph=tracer.trace(Extractor.DEFAULT.preprocess(image));
+				Graph<Junction,Segment> graph=tracer.trace(Extractor.getDefault().preprocess(image));
 				if(debug){
 					System.out.println(Graph.toString(graph));
 				}
@@ -168,7 +168,7 @@ public class Demo extends JPanel{
 		}else if(input instanceof TraceList){
 			list=(TraceList)input;
 			if(tracer!=null){
-				Graph<Junction,Segment> graph=tracer.trace(Extractor.DEFAULT.preprocess(TraceListViewer.renderImage(list)));
+				Graph<Junction,Segment> graph=tracer.trace(Extractor.getDefault().preprocess(TraceListViewer.renderImage(list)));
 				if(debug){
 					System.out.println(Graph.toString(graph));
 				}

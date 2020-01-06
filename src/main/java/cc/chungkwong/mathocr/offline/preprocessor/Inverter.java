@@ -53,9 +53,10 @@ public class Inverter extends SimplePreprocessor{
 	 * @return test result
 	 */
 	public boolean checkWhiteOnBlack(byte[] pixels){
+		int threhold=new OtsuBinarizer().getThrehold(pixels);
 		int count=0;
 		for(byte pix:pixels){
-			if((pix&0xFF)<=0x80){
+			if((pix&0xFF)<=threhold){
 				++count;
 			}
 		}

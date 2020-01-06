@@ -115,7 +115,7 @@ public class Main extends JFrame{
 			Clipboard clipboard=Toolkit.getDefaultToolkit().getSystemClipboard();
 			Object image=clipboard.getData(DataFlavor.imageFlavor);
 			if(image instanceof BufferedImage){
-				result.setTraceList(Extractor.DEFAULT.extract((BufferedImage)image));
+				result.setTraceList(Extractor.getDefault().extract((BufferedImage)image));
 			}
 			addTab("CLIPBOARD",result);
 			result.setResizeWeight(0.5);
@@ -142,10 +142,10 @@ public class Main extends JFrame{
 		Runnable refresh=()->{
 			TraceList traceList=pad.getTraceList();
 			if(extract.isSelected()){
-				traceList=Extractor.DEFAULT.extract(TraceListViewer.renderImage(traceList),false);
+				traceList=Extractor.getDefault().extract(TraceListViewer.renderImage(traceList),false);
 			}
 			if(reorder.isSelected()){
-				traceList=Extractor.DEFAULT.getOrderer().order(traceList);
+				traceList=Extractor.getDefault().getOrderer().order(traceList);
 			}
 			result.setTraceList(traceList);
 			undo.setEnabled(!traceList.getTraces().isEmpty());

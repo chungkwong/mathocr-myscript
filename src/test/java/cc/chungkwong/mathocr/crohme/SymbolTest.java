@@ -60,7 +60,6 @@ public class SymbolTest{
 	public static void main(String[] args) throws Exception{
 		export(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/subTask_symbols/valid/data_png_testSymbols"),
 				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/subTask_symbols/valid/isolated_testSymbols2014/testSymbols"),
-				new File(Crohme.DIRECTORY_RESULT+"/single2014.json"),
-				Extractor.DEFAULT);
+				new File(Crohme.DIRECTORY_RESULT+"/single2014.json"),Extractor.getDefault());
 	}
 }

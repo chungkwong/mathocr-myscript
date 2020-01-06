@@ -72,7 +72,7 @@ public class StrokeInspector2 extends JSplitPane implements ActionListener{
 			preview.setTraceList(ink.getTraceList(),ink.getAnnotions());
 			image=ImageIO.read(new File(IMAGES,fileChooser.getSelectedFile().getName().replace(".inkml",".png")));
 			//image=new AffineTransformOp(AffineTransform.getScaleInstance(3,3),AffineTransformOp.TYPE_BILINEAR).filter(image,null);
-			image=Extractor.DEFAULT.getPreprocessor().apply(image,true);
+			image=Extractor.getDefault().getPreprocessor().apply(image,true);
 			result.setText(ink.getMeta().entrySet().stream().map((attr)->attr.getKey()+"\t"+attr.getValue()).collect(Collectors.joining("\n")));
 			//thinViewer.setIcon(new ImageIcon(new Thinning().apply(image,false)));
 			Graph<Junction,Segment> graph=ThinTracer.buildRawGraph(new Bitmap(image));
@@ -81,7 +81,7 @@ public class StrokeInspector2 extends JSplitPane implements ActionListener{
 			//graphViewer.setIcon(new ImageIcon(Graph.visualize(graph,image.getWidth(),image.getHeight())));
 			//System.out.println(Graph.toString(graph));
 			//System.out.println(graph);
-			TraceList extracted=Extractor.DEFAULT.getGraphTracer().trace(graph);
+			TraceList extracted=Extractor.getDefault().getGraphTracer().trace(graph);
 			extracted=new CutOrderer().order(extracted);
 			traceViewer.setTraceList(extracted.rescale(ink.getTraceList().getBoundBox()),Collections.emptyList());
 		}catch(Exception ex){

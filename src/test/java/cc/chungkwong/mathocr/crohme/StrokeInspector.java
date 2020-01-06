@@ -89,7 +89,7 @@ public class StrokeInspector extends JSplitPane implements ActionListener{
 				image=TraceListViewer.renderImage(traceList);
 			}else{
 				image=ImageIO.read(fileChooser.getSelectedFile());
-				image=Extractor.DEFAULT.getPreprocessor().apply(image,true);
+				image=Extractor.getDefault().getPreprocessor().apply(image,true);
 				preview.setImage(image);
 			}
 			thinViewer.setIcon(new ImageIcon(new Thinning().apply(image,false)));
@@ -102,7 +102,7 @@ public class StrokeInspector extends JSplitPane implements ActionListener{
 				System.out.println(Graph.toString(graph));
 			}
 			//System.out.println(graph);
-			TraceList traceList=Extractor.DEFAULT.getGraphTracer().trace(graph);
+			TraceList traceList=Extractor.getDefault().getGraphTracer().trace(graph);
 			traceList=new CutOrderer().order(traceList);
 			traceViewer.setTraceList(traceList,Collections.emptyList());
 		}catch(IOException|ParserConfigurationException|SAXException ex){

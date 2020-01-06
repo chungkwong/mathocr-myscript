@@ -59,7 +59,7 @@ public interface TraceListFormat{
 				return next.read(file);
 			}
 		}
-		return Extractor.DEFAULT.extract(ImageIO.read(file));
+		return Extractor.getDefault().extract(ImageIO.read(file));
 	}
 	/**
 	 * Save trace list to a file

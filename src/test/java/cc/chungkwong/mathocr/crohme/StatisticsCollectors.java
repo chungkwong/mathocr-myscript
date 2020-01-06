@@ -157,7 +157,7 @@ public class StatisticsCollectors{
 	}
 	public static void main(String[] args) throws IOException{
 		//collectByRender(Crohme.getTestStream2016(),Extractor.DEFAULT);
-		collectFromImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),Extractor.DEFAULT);
+		collectFromImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),Extractor.getDefault());
 //		collectGroundTruth(Crohme.getTrainStream2019());
 //		collectGroundTruth(Crohme.getTestStream2019());
 		collectGroundTruth(Crohme.getTestStream2016());

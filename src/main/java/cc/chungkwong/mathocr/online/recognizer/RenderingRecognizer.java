@@ -44,6 +44,6 @@ public class RenderingRecognizer implements OnlineRecognizer{
 	}
 	@Override
 	public EncodedExpression recognize(TraceList traceList){
-		return base.recognize(Extractor.DEFAULT.preprocess(TraceListViewer.renderImage(traceList)));
+		return base.recognize(Extractor.getDefault().preprocess(TraceListViewer.renderImage(traceList)));
 	}
 }

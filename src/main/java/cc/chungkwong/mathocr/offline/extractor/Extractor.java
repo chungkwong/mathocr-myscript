@@ -23,7 +23,6 @@ import cc.chungkwong.mathocr.offline.preprocessor.*;
 import cc.chungkwong.mathocr.online.*;
 import cc.chungkwong.mathocr.online.recognizer.*;
 import java.awt.image.*;
-import java.util.*;
 /**
  * Offline recognizer based on online recognizer
  *
@@ -33,7 +32,6 @@ public class Extractor implements OfflineRecognizer{
 	/**
 	 * MyScript based offline recognizer
 	 */
-	public static final Extractor DEFAULT=new Extractor(new MyscriptRecognizer());
 	private final Preprocessor preprocessor;
 	private final SkeletonTracer tracer;
 	private final GraphTracer graphTracer;
@@ -45,7 +43,7 @@ public class Extractor implements OfflineRecognizer{
 	 * @param recognizer
 	 */
 	public Extractor(OnlineRecognizer recognizer){
-		this(new CombinedPreprocessor(Arrays.asList(new ToGrayscale(),new SauvolaBinarizer())),
+		this(new CombinedPreprocessor(),
 				//			new CombinedPreprocessor(Arrays.asList(new ToGrayscale(false),new OtsuBinarizer())),
 				//			new CombinedPreprocessor(Arrays.asList(new ToGrayscale(false),new FixedBinarizer(195))),
 				new ThinTracer(),new GreedyGraphTracer(),new CutOrderer(),recognizer);
@@ -167,5 +165,11 @@ public class Extractor implements OfflineRecognizer{
 	 */
 	public EncodedExpression recognize(TraceList traceList){
 		return recognizer.recognize(traceList);
+	}
+	/**
+	 * @return the DEFAULT
+	 */
+	public static Extractor getDefault(){
+		return new Extractor(new MyscriptRecognizer());
 	}
 }

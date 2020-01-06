@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package cc.chungkwong.mathocr.offline.preprocessor;
+import cc.chungkwong.mathocr.*;
 import java.awt.image.*;
 import java.util.*;
 /**
@@ -23,6 +24,33 @@ import java.util.*;
  */
 public class CombinedPreprocessor implements Preprocessor{
 	private final List<Preprocessor> preprocessors;
+	public CombinedPreprocessor(){
+		preprocessors=new ArrayList<>();
+		preprocessors.add(new ToGrayscale());
+		if(Settings.DEFAULT.getBoolean("DETECT_INVERT")==true){
+			preprocessors.add(new Inverter(true));
+		}
+		if(Settings.DEFAULT.getBoolean("MEAN_FILTER")==true){
+			preprocessors.add(new MeanFilter());
+		}
+		switch(Settings.DEFAULT.getString("BINARIZATION_METHOD").toUpperCase()){
+			case "OTSU":
+				preprocessors.add(new OtsuBinarizer());
+				break;
+			case "FIXED":
+				preprocessors.add(new OtsuBinarizer());
+				break;
+			default:
+				preprocessors.add(new SauvolaBinarizer());
+				break;
+		}
+		if(Settings.DEFAULT.getBoolean("MEDIAN_FILTER")==true){
+			preprocessors.add(new MedianFilter());
+		}
+		if(Settings.DEFAULT.getBoolean("NOISE_REMOVE")==true){
+			preprocessors.add(new NoiseRemove());
+		}
+	}
 	/**
 	 * Construct a CombinedPreprocessor
 	 *

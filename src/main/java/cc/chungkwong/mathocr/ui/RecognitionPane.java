@@ -68,7 +68,7 @@ public class RecognitionPane extends JSplitPane{
 		code.setText("Recognizing...");
 		new Thread(()->{
 			try{
-				expression=Extractor.DEFAULT.recognize(input.getTraceList(),false);
+				expression=Extractor.getDefault().recognize(input.getTraceList(),false);
 				SwingUtilities.invokeLater(()->{
 					recognizing=false;
 					format();

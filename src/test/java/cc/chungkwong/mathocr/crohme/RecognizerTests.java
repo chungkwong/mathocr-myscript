@@ -143,7 +143,7 @@ public class RecognizerTests{
 		}
 	}
 	public static void main(String[] args) throws Exception{
-		recognizeByRender(Crohme.getTestStream2016(),new File("../datasets/tracer/2016"),Extractor.DEFAULT);
+		recognizeByRender(Crohme.getTestStream2016(),new File("../datasets/tracer/2016"),Extractor.getDefault());
 //		recognizeImage(new File("../datasets/crohme2019/Task1_and_Task2/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
 //				new File("../datasets/TC11_package/CROHME2014_data/TestEM2014GT"),
 //				new File("../datasets/tracer/img2014"),

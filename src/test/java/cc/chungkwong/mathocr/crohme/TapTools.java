@@ -81,6 +81,7 @@ public class TapTools{
 		File alignDirectory=new File(directory,"on-align");
 		alignDirectory.mkdirs();
 		HashMap<String,String> captions=new HashMap<>();
+		Extractor extractor=Extractor.getDefault();
 		for(Iterator<Pair<cc.chungkwong.mathocr.common.format.Ink,BufferedImage>> iterator=stream.iterator();iterator.hasNext();){
 			Pair<cc.chungkwong.mathocr.common.format.Ink,BufferedImage> pair=iterator.next();
 			cc.chungkwong.mathocr.common.format.Ink next=pair.getKey();
@@ -95,7 +96,7 @@ public class TapTools{
 					System.out.println(latex+key);
 				}else{
 					captions.put(key,latex);
-					TraceList extractedTraceList=Extractor.DEFAULT.extract(pair.getValue(),true);
+					TraceList extractedTraceList=extractor.extract(pair.getValue(),true);
 					match(extractedTraceList,next.getTraceList(),pairs);
 					writeTraceList(extractedTraceList,new File(asciiDirectory,key+".ascii"),false);
 					try(BufferedWriter out=Files.newBufferedWriter(new File(alignDirectory,key+".align").toPath())){

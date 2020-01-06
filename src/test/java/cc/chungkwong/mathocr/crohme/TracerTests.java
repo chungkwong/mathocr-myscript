@@ -418,13 +418,10 @@ public class TracerTests{
 //				new File(Crohme.DIRECTORY_RESULT+"/raw2014/result_stroke"));
 ////		Export offline data
 		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
-				new File(Crohme.DIRECTORY_RESULT+"/offline2014/result_stroke"),
-				Extractor.DEFAULT);
+				new File(Crohme.DIRECTORY_RESULT+"/offline2014/result_stroke"),Extractor.getDefault());
 		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
-				new File(Crohme.DIRECTORY_RESULT+"/offline2016/result_stroke"),
-				Extractor.DEFAULT);
+				new File(Crohme.DIRECTORY_RESULT+"/offline2016/result_stroke"),Extractor.getDefault());
 		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/Test/Images_Test2019"),
-				new File(Crohme.DIRECTORY_RESULT+"/offline2019/result_stroke"),
-				Extractor.DEFAULT);
+				new File(Crohme.DIRECTORY_RESULT+"/offline2019/result_stroke"),Extractor.getDefault());
 	}
 }

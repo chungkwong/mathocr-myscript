@@ -32,11 +32,12 @@ public class SpeedTest{
 	public static void test(Stream<BufferedImage> imagesStream){
 		ThreadMXBean threadMXBean=ManagementFactory.getThreadMXBean();
 		AsciiFormat asciiFormat=new AsciiFormat();
+		Extractor extractor=Extractor.getDefault();
 		long wallTime=System.currentTimeMillis();
 		System.out.println(imagesStream.parallel().mapToLong((image)->{
 			long startTime=threadMXBean.getCurrentThreadCpuTime();
 			try{
-				asciiFormat.write(Extractor.DEFAULT.extract(image),(File)null);
+				asciiFormat.write(extractor.extract(image),(File)null);
 			}catch(IOException ex){
 				Logger.getLogger(SpeedTest.class.getName()).log(Level.SEVERE,null,ex);
 			}

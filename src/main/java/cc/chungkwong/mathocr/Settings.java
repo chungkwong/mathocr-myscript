@@ -193,14 +193,19 @@ public class Settings{
 			Logger.getLogger(Settings.class.getName()).log(Level.SEVERE,null,ex);
 		}
 		Preferences pref=Preferences.userNodeForPackage(Settings.class);
+//		boolMap.put("DETECT_SKEW",pref.getBoolean("DETECT_INVERT",false));
 		boolMap.put("DETECT_INVERT",pref.getBoolean("DETECT_INVERT",false));
+		boolMap.put("MEDIAN_FILTER",pref.getBoolean("MEDIAN_FILTER",false));
+		boolMap.put("MEAN_FILTER",pref.getBoolean("MEAN_FILTER",false));
+		boolMap.put("NOISE_REMOVE",pref.getBoolean("NOISE_REMOVE",false));
 		intMap.put("KFILL_WINDOW",pref.getInt("KFILL_WINDOW",3));
 		intMap.put("NOISE_THREHOLD",pref.getInt("NOISE_THREHOLD",2));
 		intMap.put("MANUAL_THREHOLD_LIMIT",pref.getInt("MANUAL_THREHOLD_LIMIT",195));
 		intMap.put("SAUVOLA_WINDOW",pref.getInt("SAUVOLA_WINDOW",21));
 		intMap.put("DPI",pref.getInt("DPI",384));
 		doubleMap.put("SAUVOLA_WEIGHT",pref.getDouble("SAUVOLA_WEIGHT",0.5));
-		strMap.put("SKEW_DETECT_METHOD",pref.get("SKEW_DETECT_METHOD","PP"));
+//		strMap.put("SKEW_DETECT_METHOD",pref.get("SKEW_DETECT_METHOD","PP"));
+		strMap.put("BINARIZATION_METHOD",pref.get("BINARIZATION_METHOD","SAUVOLA"));
 		strMap.putIfAbsent("MYSCRIPT_GRAMMAR",pref.get("MYSCRIPT_GRAMMAR",null));
 		String appId=pref.get("MYSCRIPT_APPLICATION",null);
 		if(appId!=null){
