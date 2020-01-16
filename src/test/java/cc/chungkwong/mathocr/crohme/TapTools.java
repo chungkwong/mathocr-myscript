@@ -85,7 +85,7 @@ public class TapTools{
 		for(Iterator<Pair<cc.chungkwong.mathocr.common.format.Ink,BufferedImage>> iterator=stream.iterator();iterator.hasNext();){
 			Pair<cc.chungkwong.mathocr.common.format.Ink,BufferedImage> pair=iterator.next();
 			cc.chungkwong.mathocr.common.format.Ink next=pair.getKey();
-			System.out.println(next.getFile().getName());
+//			System.out.println(next.getFile().getName());
 			String key=next.getFile().getName();
 			key=key.substring(0,key.indexOf('.'));
 			Expression expression=next.getExpression();
@@ -428,14 +428,40 @@ public class TapTools{
 			}
 		}
 	}
+	private static void generate2014() throws IOException{
+		File directoryYear=new File("../other/TAP-master/data/2014");
+		File directoryOnline=new File(directoryYear,"online");
+		File directoryOffline=new File(directoryYear,"offline");
+		toTap(Crohme.getTrainStream2016(),new File(directoryOnline,"train"));
+		toTap(Crohme.getValidationStream2014(),new File(directoryOnline,"valid"));
+		toTap(Crohme.getValidationStream2016(),new File(directoryOnline,"test"));
+		toTapOffline(CrohmeOffline.getTrainStream2016(),new File(directoryOffline,"train"));
+		toTapOffline(CrohmeOffline.getValidationStream2014(),new File(directoryOffline,"valid"));
+		toTapOffline(CrohmeOffline.getValidationStream2016(),new File(directoryOffline,"test"));
+	}
+	private static void generate2016() throws IOException{
+		File directoryYear=new File("../other/TAP-master/data/2016");
+		File directoryOnline=new File(directoryYear,"online");
+		File directoryOffline=new File(directoryYear,"offline");
+		toTap(Crohme.getTrainStream2016(),new File(directoryOnline,"train"));
+		toTap(Crohme.getValidationStream2016(),new File(directoryOnline,"valid"));
+		toTap(Crohme.getTestStream2016(),new File(directoryOnline,"test"));
+		toTapOffline(CrohmeOffline.getTrainStream2016(),new File(directoryOffline,"train"));
+		toTapOffline(CrohmeOffline.getValidationStream2016(),new File(directoryOffline,"valid"));
+		toTapOffline(CrohmeOffline.getTestStream2016(),new File(directoryOffline,"test"));
+	}
+	private static void generate2019() throws IOException{
+		File directoryYear=new File("../other/TAP-master/data/2019");
+		File directoryOnline=new File(directoryYear,"online");
+		File directoryOffline=new File(directoryYear,"offline");
+		toTap(Crohme.getTrainStream2019(),new File(directoryOnline,"train"));
+		toTap(Crohme.getValidationStream2016(),new File(directoryOnline,"valid"));
+		toTapOffline(CrohmeOffline.getTrainStream2019(),new File(directoryOffline,"train"));
+		toTapOffline(CrohmeOffline.getValidationStream2016(),new File(directoryOffline,"valid"));
+	}
 	public static void main(String[] args) throws IOException{
-		toTap(Crohme.getTrainStream2016(),new File("../other/TAP-master/data/on/train"));
-//		toTap(Crohme.getTrainStream2019(),new File("../other/TAP-master/data/train"));
-		toTap(Crohme.getValidationStream2016(),new File("../other/TAP-master/data/on/valid"));
-		toTap(Crohme.getTestStream2016(),new File("../other/TAP-master/data/on/test"));
-//		toTapOffline(CrohmeOffline.getTrainStream2016(),new File("../other/TAP-master/data/train"));
-////		toTap(Crohme.getTrainStream2019(),new File("../other/TAP-master/data/train"));
-//		toTapOffline(CrohmeOffline.getValidationStream2016(),new File("../other/TAP-master/data/valid"));
-//		toTapOffline(CrohmeOffline.getTestStream2016(),new File("../other/TAP-master/data/test"));
+//		generate2014();
+//		generate2016();
+//		generate2019();
 	}
 }

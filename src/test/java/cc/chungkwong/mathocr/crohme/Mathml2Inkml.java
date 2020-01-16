@@ -379,6 +379,6 @@ public class Mathml2Inkml{
 //		generate(new File(Crohme.DIRECTORY_RESULT+"/raw2016"),true,false);
 //		generate(new File(Crohme.DIRECTORY_RESULT+"/offline2014"),true,true);
 //		generate(new File(Crohme.DIRECTORY_RESULT+"/offline2016"),true,false);
-		generate(new File(Crohme.DIRECTORY_RESULT+"/old2016"),true,false);
+//		generate(new File(Crohme.DIRECTORY_RESULT+"/old2016"),true,false);
 	}
 }

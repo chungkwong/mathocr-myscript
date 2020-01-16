@@ -357,17 +357,17 @@ public class TracerTests{
 		new JsonFormat().write(extracted,strokeFile);
 	}
 	public static void main(String[] args) throws Exception{
-//		testByRender(Crohme.getValidationStream2016().map((ink)->ink.getTraceList()),Extractor.DEFAULT);
-//		testByRender(Crohme.getTestStream2016().map((ink)->ink.getTraceList()),Extractor.DEFAULT);
+//		testByRender(Crohme.getValidationStream2016().map((ink)->ink.getTraceList()),Extractor.getDefault());
+//		testByRender(Crohme.getTestStream2016().map((ink)->ink.getTraceList()),Extractor.getDefault());
 //		testImage(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid/TestEM2014GT_INKMLs"),
 //				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
-//				Extractor.DEFAULT,1.0);
+//				Extractor.getDefault(),1.0);
 //		testImage(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
 //				new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
-//				Extractor.DEFAULT,1.0);
+//				Extractor.getDefault(),1.0);
 //		testImage(new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Inkmls_Test2019"),
 //				new File(Crohme.DIRECTORY_2019+"/../Task2_offlineRec/MainTask_formula/Images_Test2019"),
-//				Extractor.DEFAULT,1.0);
+//				Extractor.getDefault(),1.0);
 //		int bestI=-1;
 //		double bestK=0;
 //		double bestAcc=0;
@@ -396,19 +396,19 @@ public class TracerTests{
 //		System.out.println(bestAcc+" : "+bestI+" , "+bestK);
 //		testJiix(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
 //				new File(Crohme.DIRECTORY_RESULT+"/2016/result_jiix"),
-//				Extractor.DEFAULT);
+//				Extractor.getDefault());
 //		testJson(new File(Crohme.DIRECTORY_2016+"/CROHME2016_data/Task-1-Formula/TEST2016_INKML_GT"),
 //				new File(Crohme.DIRECTORY_RESULT+"/test2016/result_stroke"),
-//				Extractor.DEFAULT,1.5);
+//				Extractor.getDefault(),1.5);
 //		testJson(new File(Crohme.DIRECTORY_2016+"/CROHME2014_data/TestEM2014GT"),
 //				new File(Crohme.DIRECTORY_RESULT+"/test2014/result_stroke"),
-//				Extractor.DEFAULT,1.5);
+//				Extractor.getDefault(),1.5);
 //		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs_1000"),
 //				new File(Crohme.DIRECTORY_RESULT+"/otsu2014/result_stroke"),
-//				Extractor.DEFAULT,1.5);
+//				Extractor.getDefault(),1.5);
 //		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
 //				new File(Crohme.DIRECTORY_RESULT+"/otsu2016/result_stroke"),
-//				Extractor.DEFAULT,1.0);
+//				Extractor.getDefault(),1.0);
 ////		Export online data
 //		exportTrace(new File(DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/Test"),
 //				new File(Crohme.DIRECTORY_RESULT+"/raw2019/result_stroke"));
@@ -417,11 +417,11 @@ public class TracerTests{
 //		exportTrace(new File(DIRECTORY_2019+"/Task1_and_Task2/Task1_onlineRec/MainTask_formula/valid/TestEM2014GT_INKMLs"),
 //				new File(Crohme.DIRECTORY_RESULT+"/raw2014/result_stroke"));
 ////		Export offline data
-		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
-				new File(Crohme.DIRECTORY_RESULT+"/offline2014/result_stroke"),Extractor.getDefault());
-		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
-				new File(Crohme.DIRECTORY_RESULT+"/offline2016/result_stroke"),Extractor.getDefault());
-		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/Test/Images_Test2019"),
-				new File(Crohme.DIRECTORY_RESULT+"/offline2019/result_stroke"),Extractor.getDefault());
+//		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TestEM2014GT_INKMLs"),
+//				new File(Crohme.DIRECTORY_RESULT+"/offline2014/result_stroke"),Extractor.getDefault());
+//		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/valid/data_png_TEST2016_INKML_GT"),
+//				new File(Crohme.DIRECTORY_RESULT+"/offline2016/result_stroke"),Extractor.getDefault());
+//		exportTrace(new File(Crohme.DIRECTORY_2019+"/Task1_and_Task2/Task2_offlineRec/MainTask_formula/Test/Images_Test2019"),
+//				new File(Crohme.DIRECTORY_RESULT+"/offline2019/result_stroke"),Extractor.getDefault());
 	}
 }

@@ -44,7 +44,7 @@ to you `pom.xml`:
 <dependency>
 	<groupId>com.github.chungkwong</groupId>
 	<artifactId>mathocr-myscript</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 </dependency>
 ```
 
@@ -120,7 +120,7 @@ CROHME 2019|65.22%|78.48%|83.07%|84.90%
 <dependency>
 	<groupId>com.github.chungkwong</groupId>
 	<artifactId>mathocr-myscript</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 </dependency>
 ```
 

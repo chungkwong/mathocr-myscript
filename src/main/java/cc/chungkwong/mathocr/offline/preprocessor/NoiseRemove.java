@@ -33,9 +33,18 @@ public class NoiseRemove extends SimplePreprocessor{
 	}
 	@Override
 	public void preprocess(byte[] from,byte[] to,int width,int height){
-		int lh=new ComponentPool(from,width,height).getAverageHeight();
+		ComponentPool components=new ComponentPool(from,width,height);
+//		int sw=0, black=0;
+//		for(ConnectedComponent component:components.getComponents()){
+//			int b=component.getWeight();
+//			sw+=b*component.getWeight()/Math.max(component.getWidth(),component.getHeight());
+//			black+=b;
+//		}
+//		sw/=black;
+		int lh=(int)components.getComponents().stream().map((c)->c.getBox()).mapToInt((b)->Math.max(b.getWidth(),b.getHeight())).average().getAsDouble();
 		//System.out.println(lh);
 		int n=lh*3/20, ksh=n*n/10, ksw=n*n/20, dx=n/4, dy=n/4, ksw1=n*n*7/20;
+//		int n=lh*3/20, ksh=n*sw/2, ksw=n*sw/4, dx=sw+1, dy=sw+1, ksw1=n*sw*7/20;
 		int dl=(n+1)/2, dr=n/2, len=width*height;
 		for(int i=0;i<len;i++){
 			to[i]=(byte)(1-(from[i]&0x1));
