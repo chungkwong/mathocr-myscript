@@ -30,10 +30,12 @@ public class StrokeDirectionTests{
 	 * Start tests
 	 */
 	public void test(){
+		System.out.println("Test set 2014:");
+		test(Crohme.getValidationStream2016());
 		System.out.println("Test set 2016:");
 		test(Crohme.getTestStream2016());
-		System.out.println("Validation set 2016:");
-		test(Crohme.getValidationStream2016());
+		System.out.println("Test set 2019:");
+		test(Crohme.getTestStream2019());
 	}
 	/**
 	 * Start test
